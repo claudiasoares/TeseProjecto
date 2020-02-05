@@ -17,10 +17,35 @@ import com.example.mobiledatacolection.Fragmentos.SmsFragment;
 import com.example.mobiledatacolection.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+
+import org.javarosa.core.model.FormDef;
+import org.javarosa.xform.util.XFormUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 public class MenuActivity extends AppCompatActivity {
 
     private Button loadForm;
     BottomNavigationView bottomNavigation;
+    private FormDef formDef;
+
+    /** Suffix for the form media directory. */
+    public static final String MEDIA_SUFFIX = "-media";
+
+    /** Filename of the last-saved instance data. */
+    public static final String LAST_SAVED_FILENAME = "testetese.xml";
+
+    /** Valid XML stub that can be parsed without error. */
+    private static final String STUB_XML = "<?xml version='1.0' ?><stub />";
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,9 +57,23 @@ public class MenuActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.navigation_menu:
                                 openFragment(MenuFragment.newInstance("", ""));
+
+                                try {
+                                    XmlPullParserFactory parser = XmlPullParserFactory.newInstance();
+                                    XmlPullParser p  = parser.newPullParser();
+                                    InputStream i = getAssets().open("testetese.xml");
+                                    p.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false);
+                                    p.setInput(i,null);
+                                    processParsing(p);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                //createFormDefFromCacheOrXml("/Users/claudiasoares/TeseProjecto/MobileDataColection/app/src/main/res/xml",new File("testetese.xml"));
                                 return true;
                             case R.id.navigation_forms:
                                 openFragment(SmsFragment.newInstance("", ""));
+                                readFile();
                                 return true;
                             case R.id.navigation_loadforms:
                                 openFragment(NotificationFragment.newInstance("", ""));
@@ -47,6 +86,79 @@ public class MenuActivity extends AppCompatActivity {
 
         //initComponents();
         
+    }
+
+    private void processParsing(XmlPullParser p) {
+        ArrayList<Object> obj = new ArrayList<>();
+        int eventType = 0;
+        try {
+            eventType = p.getEventType();
+
+        while(eventType != XmlPullParser.END_DOCUMENT){
+            System.out.println(p.getName());
+            eventType=p.next();
+
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    }
+
+    private void readFile(){
+
+    }
+
+    private FormDef createFormDefFromCacheOrXml(String formPath, File formXml) {
+
+        String lastSavedSrc = getOrCreateLastSavedSrc(formXml);
+        FormDef formDefFromXml = XFormUtils.getFormFromFormXml(formPath, lastSavedSrc);
+        if (formDefFromXml == null) {
+        } else {
+            formDef = formDefFromXml;
+
+            return formDefFromXml;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the path to the last-saved file for this form,
+     * creating a valid stub if it doesn't yet exist.
+     */
+    public static String getOrCreateLastSavedSrc(File formXml) {
+        File lastSavedFile = getLastSavedFile(formXml);
+
+        if (!lastSavedFile.exists()) {
+            write(lastSavedFile, STUB_XML.getBytes(Charset.forName("UTF-8")));
+        }
+
+        return "jr://file/" + LAST_SAVED_FILENAME;
+    }
+    public static File getLastSavedFile(File formXml) {
+        return new File(getFormMediaDir(formXml), LAST_SAVED_FILENAME);
+    }
+
+    public static void write(File file, byte[] data) {
+        // Make sure the directory path to this file exists.
+        file.getParentFile().mkdirs();
+
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(data);
+            fos.close();
+        } catch (IOException e) {
+        }
+    }
+    public static File getFormMediaDir(File formXml) {
+        final String formFileName = getFormBasename(formXml);
+        return new File(formXml.getParent(), formFileName + MEDIA_SUFFIX);
+    }
+    public static String getFormBasename(File formXml) {
+        return getFormBasename(formXml.getName());
+    }
+
+    public static String getFormBasename(String formFilePath) {
+        return formFilePath.substring(0, formFilePath.lastIndexOf('.'));
     }
 
     public void openFragment(Fragment fragment) {

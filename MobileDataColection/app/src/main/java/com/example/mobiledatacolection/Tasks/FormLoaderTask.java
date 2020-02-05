@@ -31,6 +31,7 @@ import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathTypeMismatchException;
+/*
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.database.ItemsetDbAdapter;
@@ -56,15 +57,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import au.com.bytecode.opencsv.CSVReader;
-import timber.log.Timber;
 
 /**
  * Background task for loading a form.
- */
-public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FECWrapper> {
+*/
+public class FormLoaderTask {
     private static final String ITEMSETS_CSV = "itemsets.csv";
-
+/*
     private FormLoaderListener stateListener;
     private String errorMsg;
     private String instancePath;
@@ -102,15 +101,16 @@ public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FEC
     FECWrapper data;
 
     public FormLoaderTask(String instancePath, String xpath, String waitingXPath) {
-        this.instancePath = instancePath;
-        this.xpath = xpath;
-        this.waitingXPath = waitingXPath;
-    }
+        //this.instancePath = instancePath;
+        //this.xpath = xpath;
+        //this.waitingXPath = waitingXPath;
 
+    }*/
+/*
     /**
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or
      * from XML. If given an instance, it will be used to fill the {@link FormDef}.
-     */
+
     @Override
     protected FECWrapper doInBackground(String... path) {
         errorMsg = null;
@@ -568,5 +568,5 @@ public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FEC
 
     public FormDef getFormDef() {
         return formDef;
-    }
+    }*/
 }
