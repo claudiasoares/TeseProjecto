@@ -18,6 +18,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
+import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.utils.FileUtils;
+
+import org.javarosa.benchmarks.FormDefCache;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -26,11 +30,22 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.DefaultAnswerResolver;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.util.Map;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathTypeMismatchException;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
+
+import timber.log.Timber;
+
 /*
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
@@ -63,7 +78,7 @@ import java.util.Map;
 */
 public class FormLoaderTask {
     private static final String ITEMSETS_CSV = "itemsets.csv";
-/*
+
     private FormLoaderListener stateListener;
     private String errorMsg;
     private String instancePath;
@@ -101,16 +116,16 @@ public class FormLoaderTask {
     FECWrapper data;
 
     public FormLoaderTask(String instancePath, String xpath, String waitingXPath) {
-        //this.instancePath = instancePath;
-        //this.xpath = xpath;
-        //this.waitingXPath = waitingXPath;
+        this.instancePath = instancePath;
+        this.xpath = xpath;
+        this.waitingXPath = waitingXPath;
 
-    }*/
-/*
+    }
+
     /**
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or
      * from XML. If given an instance, it will be used to fill the {@link FormDef}.
-
+**/
     @Override
     protected FECWrapper doInBackground(String... path) {
         errorMsg = null;
@@ -143,10 +158,10 @@ public class FormLoaderTask {
         try {
             formDef = createFormDefFromCacheOrXml(formPath, formXml);
         } catch (StackOverflowError e) {
-            Timber.e(e);
-            errorMsg = Collect.getInstance().getString(R.string.too_complex_form);
+            Timber.e(e.getMessage());
+            //errorMsg = Collect.getInstance().getString(R.string.too_complex_form);
         } catch (Exception | Error e) {
-            Timber.w(e);
+            Timber.w(e.getMessage());
             errorMsg = e.getMessage();
         }
 
@@ -186,7 +201,7 @@ public class FormLoaderTask {
             usedSavepoint = initializeForm(formDef, fec);
             Timber.i("Form initialized in %.3f seconds.", (System.currentTimeMillis() - start) / 1000F);
         } catch (IOException | RuntimeException e) {
-            Timber.e(e);
+            Timber.e(e.getMessage());
             if (e.getCause() instanceof XPathTypeMismatchException) {
                 // this is a case of
                 // https://bitbucket.org/m
@@ -229,8 +244,8 @@ public class FormLoaderTask {
     }
 
     private FormDef createFormDefFromCacheOrXml(String formPath, File formXml) {
-        publishProgress(
-                Collect.getInstance().getString(R.string.survey_loading_reading_form_message));
+       // publishProgress(
+                //Collect.getInstance().getString(R.string.survey_loading_reading_form_message));
 
         final FormDef formDefFromCache = FormDefCache.readCache(formXml);
         if (formDefFromCache != null) {
@@ -252,7 +267,7 @@ public class FormLoaderTask {
             try {
                 FormDefCache.writeCache(formDef, formXml.getPath());
             } catch (IOException e) {
-                Timber.e(e);
+                Timber.e(e.getMessage());
             }
 
             return formDefFromXml;
@@ -321,11 +336,11 @@ public class FormLoaderTask {
                 // This order is important. Import data, then initialize.
                 try {
                     Timber.i("Importing data");
-                    publishProgress(Collect.getInstance().getString(R.string.survey_loading_reading_data_message));
+                    //publishProgress(Collect.getInstance().getString(R.string.survey_loading_reading_data_message));
                     importData(instanceXml, fec);
                     formDef.initialize(false, instanceInit);
                 } catch (IOException | RuntimeException e) {
-                    Timber.e(e);
+                    Timber.e(e.getMessage());
 
                     // Skip a savepoint file that is corrupted or 0-sized
                     if (usedSavepoint && !(e.getCause() instanceof XPathTypeMismatchException)) {
@@ -387,8 +402,8 @@ public class FormLoaderTask {
 
             if (!externalDataMap.isEmpty()) {
 
-                publishProgress(Collect.getInstance()
-                        .getString(R.string.survey_loading_reading_csv_message));
+               // publishProgress(Collect.getInstance()
+                      //  .getString(R.string.survey_loading_reading_csv_message));
 
                 ExternalDataReader externalDataReader = new ExternalDataReaderImpl(this);
                 externalDataReader.doImport(externalDataMap);
@@ -397,7 +412,7 @@ public class FormLoaderTask {
     }
 
     public void publishExternalDataLoadingProgress(String message) {
-        publishProgress(message);
+       // publishProgress(message);
     }
 
     @Override
@@ -470,7 +485,7 @@ public class FormLoaderTask {
                     }
                 }
             } catch (Exception e) {
-                Timber.e(e);
+                Timber.e(e.getMessage());
             }
         }
     }
@@ -568,5 +583,5 @@ public class FormLoaderTask {
 
     public FormDef getFormDef() {
         return formDef;
-    }*/
+    }
 }

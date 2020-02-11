@@ -15,10 +15,13 @@ import com.example.mobiledatacolection.Fragmentos.MenuFragment;
 import com.example.mobiledatacolection.Fragmentos.NotificationFragment;
 import com.example.mobiledatacolection.Fragmentos.SmsFragment;
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.dto.Instance;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import com.example.mobiledatacolection.utils.FileUtils;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.util.XFormUtils;
 
 import java.io.File;
@@ -59,12 +62,24 @@ public class MenuActivity extends AppCompatActivity {
                                 openFragment(MenuFragment.newInstance("", ""));
 
                                 try {
-                                    XmlPullParserFactory parser = XmlPullParserFactory.newInstance();
-                                    XmlPullParser p  = parser.newPullParser();
-                                    InputStream i = getAssets().open("testetese.xml");
-                                    p.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false);
-                                    p.setInput(i,null);
-                                    processParsing(p);
+                                    //XmlPullParserFactory parser = XmlPullParserFactory.newInstance();
+                                   // XmlPullParser p  = parser.newPullParser();
+                                   // InputStream i = getAssets().open("testetese.xml");
+
+
+                                   // FormDef def = XFormUtils.getFormFromInputStream(i, i.toString());
+                                    FormDef formDef;
+
+                                    File formXml = new File("testetese1.xml");
+                                    String lastSavedSrc = FileUtils.getOrCreateLastSavedSrc(formXml);
+                                    formDef = XFormUtils.getFormFromFormXml("/data/data/com.example.mobiledatacolection/files/testetese1.xml", lastSavedSrc);
+                                    FormEntryModel fem = new FormEntryModel(formDef);
+                                    FormEntryController fec = new FormEntryController(fem);
+                                    File instanceFile = new File("teste1.xml");
+                                    FormLoaderTask.importData(instanceFile, fec);
+                                    //p.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false);
+                                    //p.setInput(i,null);
+                                    //processParsing(p);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
