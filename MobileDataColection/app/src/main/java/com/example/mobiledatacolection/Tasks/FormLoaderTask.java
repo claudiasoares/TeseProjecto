@@ -18,7 +18,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
+import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.logic.FileReferenceFactory;
 import com.example.mobiledatacolection.utils.FileUtils;
 
 import org.javarosa.benchmarks.FormDefCache;
@@ -46,40 +48,13 @@ import java.util.Locale;
 
 import timber.log.Timber;
 
-/*
-import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.database.ItemsetDbAdapter;
-import org.odk.collect.android.external.ExternalAnswerResolver;
-import org.odk.collect.android.external.ExternalDataHandler;
-import org.odk.collect.android.external.ExternalDataManager;
-import org.odk.collect.android.external.ExternalDataManagerImpl;
-import org.odk.collect.android.external.ExternalDataReader;
-import org.odk.collect.android.external.ExternalDataReaderImpl;
-import org.odk.collect.android.external.handler.ExternalDataHandlerPull;
-import org.odk.collect.android.listeners.FormLoaderListener;
-import org.odk.collect.android.logic.FileReferenceFactory;
-import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.FormDefCache;
-import org.odk.collect.android.utilities.ZipUtils;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-
 /**
  * Background task for loading a form.
 */
-public class FormLoaderTask {
+public class FormLoaderTask<ExternalDataManager> {
     private static final String ITEMSETS_CSV = "itemsets.csv";
 
-    private FormLoaderListener stateListener;
+    private IFormLoader stateListener;
     private String errorMsg;
     private String instancePath;
     private final String xpath;
@@ -148,7 +123,7 @@ public class FormLoaderTask {
         // This should get moved to the Application Class
         if (referenceManager.getFactories().length == 0) {
             // this is /sdcard/odk
-            referenceManager.addReferenceFactory(new FileReferenceFactory(Collect.ODK_ROOT));
+            referenceManager.addReferenceFactory(new FileReferenceFactory(MobileDataCollect.ODK_ROOT));
         }
 
         addSessionRootTranslators(formMediaDir.getName(), referenceManager,
