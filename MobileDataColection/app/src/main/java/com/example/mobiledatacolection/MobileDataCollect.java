@@ -21,6 +21,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,14 +32,23 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import com.example.mobiledatacolection.Dragger.AppDependencyComponent;
+import com.example.mobiledatacolection.Preferences.GeneralSharedPreferences;
 import com.example.mobiledatacolection.Tasks.FormController;
 import com.example.mobiledatacolection.utils.FileUtils;
+
+import org.javarosa.core.services.PropertyManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Locale;
 
 import timber.log.Timber;
+
+import static com.example.mobiledatacolection.Preferences.GeneralKeys.KEY_FONT_SIZE;
+import static com.example.mobiledatacolection.Preferences.GeneralKeys.KEY_USERNAME;
+import static com.example.mobiledatacolection.Preferences.PropertyManager.PROPMGR_USERNAME;
+import static com.example.mobiledatacolection.Preferences.PropertyManager.SCHEME_USERNAME;
 
 
 /**
@@ -94,8 +104,8 @@ public class MobileDataCollect extends Application {
      * Creates required directories on the SDCard (or other external storage)
      *
      * @throws RuntimeException if there is no SDCard or the directory exists as a non directory
-     */
-    public static void createODKDirs() throws RuntimeException {
+
+    public static void createDirs() throws RuntimeException {
         String cardstatus = Environment.getExternalStorageState();
         if (!cardstatus.equals(Environment.MEDIA_MOUNTED)) {
             throw new RuntimeException(
@@ -123,7 +133,7 @@ public class MobileDataCollect extends Application {
             }
         }
     }
-
+     */
     /**
      * Predicate that tests whether a directory path might refer to an
      * ODK Tables instance data directory (e.g., for media attachments).
@@ -182,10 +192,13 @@ public class MobileDataCollect extends Application {
     }
 
     public boolean isNetworkAvailable() {
-        ConnectivityManager manager = (ConnectivityManager) getInstance()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo currentNetworkInfo = manager.getActiveNetworkInfo();
-        return currentNetworkInfo != null && currentNetworkInfo.isConnected();
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 
     /*
@@ -195,7 +208,7 @@ public class MobileDataCollect extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
+       // MultiDex.install(this);
     }
 
     @Override
@@ -203,35 +216,35 @@ public class MobileDataCollect extends Application {
         super.onCreate();
         singleton = this;
 
-        installTls12();
-        setupDagger();
+        // installTls12();
+        // setupDagger();
 
         // NotificationUtils.createNotificationChannel(singleton);
 
         // registerReceiver(new SmsSentBroadcastReceiver(), new IntentFilter(SMS_SEND_ACTION));
         // registerReceiver(new SmsNotificationReceiver(), new IntentFilter(SMS_NOTIFICATION_ACTION));
 
-        try {
+        /*try {
             JobManager
                     .create(this)
                     .addJobCreator(new MobileDataCollectJobCreator());
         } catch (JobManagerCreateException e) {
             Timber.e(e);
-        }
+        }*/
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         FormMetadataMigrator.migrate(prefs);
-        PrefMigrator.migrateSharedPrefs();
-        AutoSendPreferenceMigrator.migrate();
+        //PrefMigrator.migrateSharedPrefs();
+        //AutoSendPreferenceMigrator.migrate();
 
-        reloadSharedPreferences();
+        //reloadSharedPreferences();
 
-        PRNGFixes.apply();
+       // PRNGFixes.apply();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        JodaTimeAndroid.init(this);
+       // JodaTimeAndroid.init(this);
 
         defaultSysLanguage = Locale.getDefault().getLanguage();
-        new LocaleHelper().updateLocale(this);
+        //new LocaleHelper().updateLocale(this);
 
         initializeJavaRosa();
 
@@ -241,15 +254,15 @@ public class MobileDataCollect extends Application {
             Timber.plant(new Timber.DebugTree());
         }
 
-        setupLeakCanary();
+        // setupLeakCanary();
         setupOSMDroid();
     }
 
     protected void setupOSMDroid() {
-        org.osmdroid.config.Configuration.getInstance().setUserAgentValue(getUserAgentString());
+       // org.osmdroid.config.Configuration.getInstance().setUserAgentValue(getUserAgentString());
     }
 
-    private void setupDagger() {
+   /* private void setupDagger() {
         applicationComponent = DaggerAppDependencyComponent.builder()
                 .application(this)
                 .build();
@@ -257,7 +270,7 @@ public class MobileDataCollect extends Application {
         applicationComponent.inject(this);
     }
 
-    private void installTls12() {
+    /*private void installTls12() {
         if (Build.VERSION.SDK_INT <= 20) {
             ProviderInstaller.installIfNeededAsync(getApplicationContext(), new ProviderInstaller.ProviderInstallListener() {
                 @Override
@@ -272,49 +285,47 @@ public class MobileDataCollect extends Application {
                 }
             });
         }
-    }
+    }*/
 
-    protected RefWatcher setupLeakCanary() {
+   /**
+    * Detecta Leaks de memória
+    * protected RefWatcher setupLeakCanary() {
         if (LeakCanary.isInAnalyzerProcess(this)) {
             return RefWatcher.DISABLED;
         }
         return LeakCanary.install(this);
-    }
+    }**/
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
         //noinspection deprecation
-        defaultSysLanguage = newConfig.locale.getLanguage();
+       /* defaultSysLanguage = newConfig.locale.getLanguage();
         boolean isUsingSysLanguage = GeneralSharedPreferences.getInstance().get(KEY_APP_LANGUAGE).equals("");
         if (!isUsingSysLanguage) {
             new LocaleHelper().updateLocale(this);
-        }
+        }*/
     }
 
-    /**
-     * Gets the default {@link Tracker} for this {@link Application}.
-     *
-     * @return tracker
-     */
-    public synchronized Tracker getDefaultTracker() {
-        if (tracker == null) {
+
+    /*public synchronized Tracker getDefaultTracker() {
+        /*if (tracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
             tracker = analytics.newTracker(R.xml.global_tracker);
         }
         return tracker;
-    }
+    }*/
 
     public void logRemoteAnalytics(String event, String action, String label) {
         // Google Analytics
-        MobileDataCollect.getInstance()
+       /* MobileDataCollect.getInstance()
                 .getDefaultTracker()
                 .send(new HitBuilders.EventBuilder()
                         .setCategory(event)
                         .setAction(action)
                         .setLabel(label)
-                        .build());
+                        .build());*/
 
     }
 
@@ -322,4 +333,14 @@ public class MobileDataCollect extends Application {
 
     }
 
+    public void initializeJavaRosa() {
+        PropertyManager mgr = new PropertyManager(this);
+
+        // Use the server username by default if the metadata username is not defined
+        if (mgr.getSingularProperty(PROPMGR_USERNAME) == null || mgr.getSingularProperty(PROPMGR_USERNAME).isEmpty()) {
+            mgr.putProperty(PROPMGR_USERNAME, SCHEME_USERNAME, (String) GeneralSharedPreferences.getInstance().get(KEY_USERNAME));
+        }
+
+        FormController.initializeJavaRosa(mgr);
+    }
 }

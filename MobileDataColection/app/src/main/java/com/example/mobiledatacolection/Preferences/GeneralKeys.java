@@ -1,9 +1,7 @@
 package com.example.mobiledatacolection.Preferences;
 
 import com.example.mobiledatacolection.MobileDataCollect;
-
-import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
+import com.example.mobiledatacolection.R;
 
 import java.util.Arrays;
 import java.util.Collection;

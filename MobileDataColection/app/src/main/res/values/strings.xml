@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MobileDataColection</string>
+    <string name="default_splash_path">Mobile Data Collect Default</string>
 </resources>
