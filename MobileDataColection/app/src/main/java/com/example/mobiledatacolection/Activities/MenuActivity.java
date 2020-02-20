@@ -15,6 +15,7 @@ import com.example.mobiledatacolection.Fragmentos.MenuFragment;
 import com.example.mobiledatacolection.Fragmentos.NotificationFragment;
 import com.example.mobiledatacolection.Fragmentos.SmsFragment;
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.Tasks.FormLoaderTask;
 import com.example.mobiledatacolection.dto.Instance;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.mobiledatacolection.utils.FileUtils;

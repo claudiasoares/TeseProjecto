@@ -17,11 +17,14 @@
 package org.javarosa.core.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.javarosa.core.services.properties.IPropertyRules;
 import org.javarosa.core.services.properties.Property;
+import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -85,7 +88,8 @@ public class PropertyManager implements IPropertyManager {
      * Constructor for this PropertyManager
      */
     public PropertyManager() {
-        this.properties = (IStorageUtilityIndexed<? extends Externalizable>)StorageManager.getStorage(STORAGE_KEY);
+        this.properties = (IStorageUtilityIndexed<? extends Externalizable>) StorageManager.getStorage(STORAGE_KEY);
+
         rulesList = new ArrayList<IPropertyRules>(0);
     }
 
@@ -110,6 +114,16 @@ public class PropertyManager implements IPropertyManager {
         return retVal;
     }
 
+    public void putProperty(String propName, String scheme, String value) {
+        if (value != null) {
+            properties.put(propName, value);
+            properties.put(withUri(propName), scheme + ":" + value);
+        }
+    }
+
+    private static String withUri(String name) {
+        return "uri:" + name;
+    }
 
     /**
      * Retrieves the property specified, as long as it exists in one of the current rulesets

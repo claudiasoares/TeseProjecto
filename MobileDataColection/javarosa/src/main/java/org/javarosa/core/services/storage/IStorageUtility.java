@@ -1,6 +1,9 @@
 package org.javarosa.core.services.storage;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -22,7 +25,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
  * These two schemes should not be mixed within the same StorageUtility.
  *
  */
-public interface IStorageUtility<E extends Externalizable> {
+public interface IStorageUtility<E extends Externalizable> extends Map<String, String> {
 
     /**
      * Read and return the record corresponding to 'id'.
@@ -98,12 +101,51 @@ public interface IStorageUtility<E extends Externalizable> {
      */
     int getNumRecords ();
 
+    @Override
+    int size();
+
     /**
      * Return whether the store is empty
      *
      * @return true if there are no records in the store
      */
     boolean isEmpty ();
+
+    @Override
+    boolean containsKey(Object o);
+
+    @Override
+    boolean containsValue(Object o);
+
+    @Override
+    String get(Object o);
+
+    @Override
+    String put(String s, String s2);
+
+    @Override
+    String remove(Object o);
+
+    @Override
+    void putAll(Map<? extends String, ? extends String> map);
+
+    @Override
+    void clear();
+
+    @Override
+    Set<String> keySet();
+
+    @Override
+    Collection<String> values();
+
+    @Override
+    Set<Entry<String, String>> entrySet();
+
+    @Override
+    boolean equals(Object o);
+
+    @Override
+    int hashCode();
 
     /**
      * Return whether a record exists in the store

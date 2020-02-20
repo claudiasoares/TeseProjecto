@@ -334,7 +334,7 @@ public class MobileDataCollect extends Application {
     }
 
     public void initializeJavaRosa() {
-        PropertyManager mgr = new PropertyManager(this);
+        PropertyManager mgr = new PropertyManager();
 
         // Use the server username by default if the metadata username is not defined
         if (mgr.getSingularProperty(PROPMGR_USERNAME) == null || mgr.getSingularProperty(PROPMGR_USERNAME).isEmpty()) {
@@ -342,5 +342,9 @@ public class MobileDataCollect extends Application {
         }
 
         FormController.initializeJavaRosa(mgr);
+    }
+
+    public AppDependencyComponent getComponent() {
+        return applicationComponent;
     }
 }

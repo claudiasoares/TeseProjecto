@@ -4,9 +4,9 @@ import android.app.Application;
 import android.telephony.SmsManager;
 
 import com.example.mobiledatacolection.MobileDataCollect;
+import com.example.mobiledatacolection.Preferences.PropertyManager;
 
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.PropertyManager;
 
 
 import javax.inject.Singleton;
@@ -51,6 +51,7 @@ public interface AppDependencyComponent {
     }
 
     void inject(MobileDataCollect collect);
+    void inject(PropertyManager propertyManager);
 
     // void inject(SmsService smsService);
 
@@ -64,7 +65,7 @@ public interface AppDependencyComponent {
 
     // void inject(DataManagerList dataManagerList);
 
-    void inject(PropertyManager propertyManager);
+
 
     // void inject(FormEntryActivity formEntryActivity);
 

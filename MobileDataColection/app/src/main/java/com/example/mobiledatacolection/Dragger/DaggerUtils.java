@@ -17,17 +17,16 @@ package com.example.mobiledatacolection.Dragger;
 import android.app.Activity;
 import android.content.Context;
 
-import org.odk.collect.android.application.Collect;
-
+import com.example.mobiledatacolection.MobileDataCollect;
 public class DaggerUtils {
 
     private DaggerUtils() {}
 
     public static AppDependencyComponent getComponent(Activity activity) {
-        return ((Collect) activity.getApplication()).getComponent();
+        return ((MobileDataCollect) activity.getApplication()).getComponent();
     }
 
     public static AppDependencyComponent getComponent(Context context) {
-        return ((Collect) context.getApplicationContext()).getComponent();
+        return ((MobileDataCollect) context.getApplicationContext()).getComponent();
     }
 }

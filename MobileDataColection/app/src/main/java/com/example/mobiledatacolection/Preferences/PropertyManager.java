@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
+import com.example.mobiledatacolection.Events.RxEventBus;
 import com.example.mobiledatacolection.MobileDataCollect;
 
 import org.javarosa.core.services.IPropertyManager;
@@ -73,7 +74,7 @@ public class PropertyManager implements IPropertyManager {
     public String getName() {
         return "Property Manager";
     }
-
+    // id and prefix form
     private static class IdAndPrefix {
         String id;
         String prefix;
@@ -91,13 +92,14 @@ public class PropertyManager implements IPropertyManager {
         try {
             // Device-defined properties
             TelephonyManager telMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
             IdAndPrefix idp = findDeviceId(context, telMgr);
             putProperty(PROPMGR_DEVICE_ID,     idp.prefix,          idp.id);
             putProperty(PROPMGR_PHONE_NUMBER,  SCHEME_TEL,          telMgr.getLine1Number());
             putProperty(PROPMGR_SUBSCRIBER_ID, SCHEME_IMSI,         telMgr.getSubscriberId());
             putProperty(PROPMGR_SIM_SERIAL,    SCHEME_SIMSERIAL,    telMgr.getSimSerialNumber());
         } catch (SecurityException e) {
-            Timber.e(e);
+            Timber.e(e.getMessage());
         }
 
         // User-defined properties. Will replace any above with the same PROPMGR_ name.
@@ -107,7 +109,8 @@ public class PropertyManager implements IPropertyManager {
         initUserDefined(prefs, KEY_METADATA_EMAIL,       PROPMGR_EMAIL,         SCHEME_MAILTO);
     }
 
-    // telephonyManager.getDeviceId() requires permission READ_PHONE_STATE (ISSUE #2506). Permission should be handled or exception caught.
+    // telephonyManager.getDeviceId() requires permission READ_PHONE_STATE (ISSUE #2506).
+    // Permission should be handled or exception caught.
     private IdAndPrefix findDeviceId(Context context, TelephonyManager telephonyManager) throws SecurityException {
         final String androidIdName = Settings.Secure.ANDROID_ID;
         String deviceId = telephonyManager.getDeviceId();

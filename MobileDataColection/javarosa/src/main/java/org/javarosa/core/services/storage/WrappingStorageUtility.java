@@ -1,7 +1,10 @@
 package org.javarosa.core.services.storage;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -160,8 +163,68 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
         return storage.isEmpty();
     }
 
+    @Override
+    public boolean containsKey(Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsValue(Object o) {
+        return false;
+    }
+
+    @Override
+    public String get(Object o) {
+        return null;
+    }
+
+    @Override
+    public Object put(Object o, Object o2) {
+        return null;
+    }
+
+    @Override
+    public String put(String s, String s2) {
+        return null;
+    }
+
+    @Override
+    public String remove(Object o) {
+        return null;
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return null;
+    }
+
+    @Override
+    public Collection<String> values() {
+        return null;
+    }
+
+    @Override
+    public Set<Entry<String, String>> entrySet() {
+        return null;
+    }
+
+    @Override
+    public void putAll(Map map) {
+
+    }
+
     public int getNumRecords() {
         return storage.getNumRecords();
+    }
+
+    @Override
+    public int size() {
+        return 0;
     }
 
     public int getRecordSize(int id) {

@@ -7,10 +7,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IMetaData;
@@ -124,6 +127,11 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         return data.size();
     }
 
+    @Override
+    public int size() {
+        return 0;
+    }
+
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#getRecordSize(int)
      */
@@ -148,6 +156,56 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean containsKey(Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsValue(Object o) {
+        return false;
+    }
+
+    @Override
+    public String get(Object o) {
+        return null;
+    }
+
+    @Override
+    public String put(String s, String s2) {
+        return null;
+    }
+
+    @Override
+    public String remove(Object o) {
+        return null;
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ? extends String> map) {
+
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return null;
+    }
+
+    @Override
+    public Collection<String> values() {
+        return null;
+    }
+
+    @Override
+    public Set<Entry<String, String>> entrySet() {
+        return null;
     }
 
     /* (non-Javadoc)

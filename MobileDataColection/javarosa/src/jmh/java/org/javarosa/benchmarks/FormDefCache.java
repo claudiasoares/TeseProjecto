@@ -184,4 +184,11 @@ public class FormDefCache {
             return null;
         }
     }
+
+    public static void writeCache(FormDef formDef, String path) {
+    }
+
+    public static FormDef readCache(File formXml) {
+        return null;
+    }
 }

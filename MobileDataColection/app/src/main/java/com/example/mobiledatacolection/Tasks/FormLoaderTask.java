@@ -22,10 +22,11 @@ import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.logic.FileReferenceFactory;
 import com.example.mobiledatacolection.utils.FileUtils;
+import com.example.mobiledatacolection.utils.FormDefCache;
 
-import org.javarosa.benchmarks.FormDefCache;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -51,10 +52,10 @@ import timber.log.Timber;
 /**
  * Background task for loading a form.
 */
-public class FormLoaderTask<ExternalDataManager> {
+public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FECWrapper>  {
     private static final String ITEMSETS_CSV = "itemsets.csv";
 
-    private IFormLoader stateListener;
+    private FormLoaderListener stateListener;
     private String errorMsg;
     private String instancePath;
     private final String xpath;
@@ -144,12 +145,12 @@ public class FormLoaderTask<ExternalDataManager> {
             return null;
         }
 
-        externalDataManager = new ExternalDataManagerImpl(formMediaDir);
+        externalDataManager = (ExternalDataManager) new ExternalDataManagerImpl(formMediaDir);
 
         // add external data function handlers
         ExternalDataHandler externalDataHandlerPull = new ExternalDataHandlerPull(
                 externalDataManager);
-        formDef.getEvaluationContext().addFunctionHandler(externalDataHandlerPull);
+        formDef.getEvaluationContext().addFunctionHandler((IFunctionHandler) externalDataHandlerPull);
 
         try {
             loadExternalData(formMediaDir);
@@ -220,7 +221,7 @@ public class FormLoaderTask<ExternalDataManager> {
 
     private FormDef createFormDefFromCacheOrXml(String formPath, File formXml) {
        // publishProgress(
-                //Collect.getInstance().getString(R.string.survey_loading_reading_form_message));
+                //MobileDataCollect.getInstance().getString(R.string.survey_loading_reading_form_message));
 
         final FormDef formDefFromCache = FormDefCache.readCache(formXml);
         if (formDefFromCache != null) {
@@ -239,11 +240,7 @@ public class FormLoaderTask<ExternalDataManager> {
                     (System.currentTimeMillis() - start) / 1000F);
             formDef = formDefFromXml;
 
-            try {
-                FormDefCache.writeCache(formDef, formXml.getPath());
-            } catch (IOException e) {
-                Timber.e(e.getMessage());
-            }
+            FormDefCache.writeCache(formDef, formXml.getPath());
 
             return formDefFromXml;
         }
@@ -255,39 +252,7 @@ public class FormLoaderTask<ExternalDataManager> {
         // for itemsets.csv, we only check to see if the itemset file has been
         // updated
         final File csv = new File(formMediaDir.getAbsolutePath() + "/" + ITEMSETS_CSV);
-        String csvmd5 = null;
-        if (csv.exists()) {
-            csvmd5 = FileUtils.getMd5Hash(csv);
-            boolean readFile = false;
-            final ItemsetDbAdapter ida = new ItemsetDbAdapter();
-            ida.open();
-            // get the database entry (if exists) for this itemsets.csv, based
-            // on the path
-            final Cursor c = ida.getItemsets(csv.getAbsolutePath());
-            if (c != null) {
-                if (c.getCount() == 1) {
-                    c.moveToFirst(); // should be only one, ever, if any
-                    final String oldmd5 = c.getString(c.getColumnIndex("hash"));
-                    if (oldmd5.equals(csvmd5)) {
-                        // they're equal, do nothing
-                    } else {
-                        // the csv has been updated, delete the old entries
-                        ida.dropTable(ItemsetDbAdapter.getMd5FromString(csv.getAbsolutePath()),
-                                csv.getAbsolutePath());
-                        // and read the new
-                        readFile = true;
-                    }
-                } else {
-                    // new csv, add it
-                    readFile = true;
-                }
-                c.close();
-            }
-            ida.close();
-            if (readFile) {
-                readCSV(csv, csvmd5, ItemsetDbAdapter.getMd5FromString(csv.getAbsolutePath()));
-            }
-        }
+
     }
 
     private boolean initializeForm(FormDef formDef, FormEntryController fec) throws IOException {
@@ -365,7 +330,7 @@ public class FormLoaderTask<ExternalDataManager> {
             }
         });
 
-        Map<String, File> externalDataMap = new HashMap<>();
+        HashMap<String, File> externalDataMap =  new HashMap<String, File>();
 
         if (csvFiles != null) {
 
@@ -381,7 +346,7 @@ public class FormLoaderTask<ExternalDataManager> {
                       //  .getString(R.string.survey_loading_reading_csv_message));
 
                 ExternalDataReader externalDataReader = new ExternalDataReaderImpl(this);
-                externalDataReader.doImport(externalDataMap);
+                externalDataReader.doImport((Map<String, File>) externalDataMap);
             }
         }
     }
@@ -516,8 +481,7 @@ public class FormLoaderTask<ExternalDataManager> {
     private void readCSV(File csv, String formHash, String pathHash) {
 
         CSVReader reader;
-        ItemsetDbAdapter ida = new ItemsetDbAdapter();
-        ida.open();
+
         boolean withinTransaction = false;
 
         try {
@@ -525,34 +489,10 @@ public class FormLoaderTask<ExternalDataManager> {
 
             String[] nextLine;
             String[] columnHeaders = null;
-            int lineNumber = 0;
-            while ((nextLine = reader.readNext()) != null) {
-                lineNumber++;
-                if (lineNumber == 1) {
-                    // first line of csv is column headers
-                    columnHeaders = nextLine;
-                    ida.createTable(formHash, pathHash, columnHeaders,
-                            csv.getAbsolutePath());
-                    continue;
-                }
-                // add the rest of the lines to the specified database
-                // nextLine[] is an array of values from the line
-                // System.out.println(nextLine[4] + "etc...");
-                if (lineNumber == 2) {
-                    // start a transaction for the inserts
-                    withinTransaction = true;
-                    ida.beginTransaction();
-                }
-                ida.addRow(pathHash, columnHeaders, nextLine);
-
-            }
         } catch (IOException e) {
             Timber.e(e, "Exception thrown while reading csv file");
         } finally {
-            if (withinTransaction) {
-                ida.commit();
-            }
-            ida.close();
+
         }
     }
 

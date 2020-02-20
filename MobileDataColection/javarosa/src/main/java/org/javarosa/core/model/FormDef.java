@@ -518,19 +518,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         // Fire events before form re-computation (calculates, relevance, etc). First trigger actions defined in the
         // model and then trigger actions defined in the body
-        actionController.triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
         actionController.triggerActionsFromEvent(Action.EVENT_ODK_NEW_REPEAT, this, repeatContextRef, this);
         // Trigger actions nested in the new repeat
         getChild(index).getActionController().triggerActionsFromEvent(Action.EVENT_ODK_NEW_REPEAT, this, repeatContextRef, this);
 
         dagImpl.createRepeatGroup(getMainInstance(), getEvaluationContext(), repeatContextRef, newNode);
-    }
-
-    @Override
-    public void processResultOfAction(TreeReference refSetByAction, String event) {
-        if (Action.EVENT_JR_INSERT.equals(event)) {
-            // CommCare has an implementation if needed
-        }
     }
 
     public boolean isRepeatRelevant(TreeReference repeatRef) {
@@ -1816,5 +1808,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     public HashMap<String, DataInstance> getFormInstances() {
         return formInstances;
+    }
+
+    @Override
+    public void processResultOfAction(TreeReference targetRef, String event) {
+
     }
 }

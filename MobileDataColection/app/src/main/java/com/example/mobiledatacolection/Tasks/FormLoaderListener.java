@@ -2,14 +2,14 @@ package com.example.mobiledatacolection.Tasks;
 
 import org.javarosa.core.model.FormDef;
 
-public class IFormLoader {
-    public void onProgressStep(String value) {
+class FormLoaderListener {
+    public void loadingError(String errorMsg) {
     }
 
     public <ExternalDataManager> void loadingComplete(FormLoaderTask externalDataManagerFormLoaderTask, FormDef formDef) {
     }
 
-    public void loadingError(String errorMsg) {
+    public void onProgressStep(String value) {
 
     }
 }
