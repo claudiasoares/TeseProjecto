@@ -70,17 +70,13 @@ public class MenuActivity extends AppCompatActivity {
 
                                    // FormDef def = XFormUtils.getFormFromInputStream(i, i.toString());
                                     FormDef formDef;
-
-                                    File formXml = new File("testetese1.xml");
+                                    String pathNameFile = "/data/data/com.example.mobiledatacolection/files/testetese1.xml";
+                                    File formXml = new File(pathNameFile);
                                     String lastSavedSrc = FileUtils.getOrCreateLastSavedSrc(formXml);
-                                    formDef = XFormUtils.getFormFromFormXml("/data/data/com.example.mobiledatacolection/files/testetese1.xml", lastSavedSrc);
-                                    FormEntryModel fem = new FormEntryModel(formDef);
-                                    FormEntryController fec = new FormEntryController(fem);
-                                    File instanceFile = new File("teste1.xml");
-                                    FormLoaderTask.importData(instanceFile, fec);
-                                    //p.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES,false);
-                                    //p.setInput(i,null);
-                                    //processParsing(p);
+                                    formDef = XFormUtils.getFormFromFormXml(pathNameFile, lastSavedSrc);
+                                    FormLoaderTask.importData(formXml, new FormEntryController(new FormEntryModel(formDef)));
+
+
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
