@@ -16,39 +16,30 @@ package com.example.mobiledatacolection;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
-import com.example.mobiledatacolection.Dragger.AppDependencyComponent;
-import com.example.mobiledatacolection.Preferences.GeneralSharedPreferences;
-import com.example.mobiledatacolection.Tasks.FormController;
-import com.example.mobiledatacolection.utils.FileUtils;
+import com.example.mobiledatacolection.dragger.AppDependencyComponent;
+import com.example.mobiledatacolection.preferences.GeneralSharedPreferences;
+import com.example.mobiledatacolection.tasks.FormController;
 
 import org.javarosa.core.services.PropertyManager;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Locale;
 
 import timber.log.Timber;
 
-import static com.example.mobiledatacolection.Preferences.GeneralKeys.KEY_FONT_SIZE;
-import static com.example.mobiledatacolection.Preferences.GeneralKeys.KEY_USERNAME;
-import static com.example.mobiledatacolection.Preferences.PropertyManager.PROPMGR_USERNAME;
-import static com.example.mobiledatacolection.Preferences.PropertyManager.SCHEME_USERNAME;
+import static com.example.mobiledatacolection.preferences.GeneralKeys.KEY_FONT_SIZE;
+import static com.example.mobiledatacolection.preferences.GeneralKeys.KEY_USERNAME;
+import static com.example.mobiledatacolection.preferences.PropertyManager.PROPMGR_USERNAME;
+import static com.example.mobiledatacolection.preferences.PropertyManager.SCHEME_USERNAME;
 
 
 /**
