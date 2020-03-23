@@ -383,7 +383,7 @@ public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FEC
         TreeReference tr = TreeReference.rootRef();
         tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
 
-        // Here we set the Collect's implementation of the IAnswerResolver.
+        // Here we set the MobileCollectionData implementation of the IAnswerResolver.
         // We set it back to the default after select choices have been populated.
         XFormParser.setAnswerResolver(new ExternalAnswerResolver());
         templateRoot.populate(savedRoot, fec.getModel().getForm());
@@ -392,14 +392,6 @@ public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FEC
         // populated model to current form
         fec.getModel().getForm().getInstance().setRoot(templateRoot);
 
-        // fix any language issues
-        // :
-        // http://bitbucket.org/javarosa/main/issue/5/itext-n-appearing-in-restored-instances
-        if (fec.getModel().getLanguages() != null) {
-            fec.getModel().getForm()
-                    .localeChanged(fec.getModel().getLanguage(),
-                            fec.getModel().getForm().getLocalizer());
-        }
         Timber.i("Done importing data");
     }
 

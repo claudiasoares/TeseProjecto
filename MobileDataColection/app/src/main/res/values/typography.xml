@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.MobileDataCollect.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+
+    </style>
+
+    <style name="TextAppearance.MobileDataCollect.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+
+    </style>
+
+    <style name="TextAppearance.MobileDataCollect.Body2" parent="TextAppearance.MaterialComponents.Body2">
+
+    </style>
+
+
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.MobileDataCollect.Settings.Light" parent="Theme.MobileDataCollect.BaseLight">
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="android:textAppearance">@style/TextAppearance.MobileDataCollect.Subtitle1</item>
+        <item name="android:textDirection" tools:targetApi="17">locale</item>
+        <item name="android:listDivider">@null</item>
+    </style>
+
+    <style name="Theme.MobileDataCollect.Settings.Dark" parent="Theme.MobileDataCollect.BaseDark">
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="android:textAppearance">@style/TextAppearance.MobileDataCollect.Subtitle1</item>
+        <item name="android:textDirection" tools:targetApi="17">locale</item>
+        <item name="android:listDivider">@null</item>
+    </style>
+</resources>

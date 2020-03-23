@@ -4,7 +4,7 @@ import android.content.Context;
 
 public class DateWidget extends QuestionWidget
 {
-    public DateWidget(Context context) {
-        super(context);
+    public DateWidget(Context context, QuestionDetails questionDetails) {
+        super(context, questionDetails);
     }
 }

@@ -8,4 +8,20 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="Theme.MobileDataCollect.MaterialDialogSheet.Dark" parent="Theme.Design.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.MobileDataCollect.BottomSheet.Modal</item>
+    </style>
+
+    <style name="Theme.MobileDataCollect.MaterialDialogSheet.Light" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.MobileDataCollect.BottomSheet.Modal</item>
+    </style>
+
+
+
+    <style name="Widget.MobileDataCollect.BottomSheet.Modal" parent="Widget.Design.BottomSheet.Modal">
+        <item name="behavior_peekHeight">300dp</item>
+    </style>
+
+
+
 </resources>

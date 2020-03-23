@@ -1,9 +1,15 @@
 package com.example.mobiledatacolection.activities;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,12 +22,16 @@ import com.example.mobiledatacolection.fragmentos.NotificationFragment;
 import com.example.mobiledatacolection.fragmentos.SmsFragment;
 import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.tasks.FormLoaderTask;
+import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.mobiledatacolection.utils.FileUtils;
+import com.google.android.material.navigation.NavigationView;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.IFormElement;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
+import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.XFormUtils;
 
 import java.io.File;
@@ -29,11 +39,98 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.*;
 
 import org.xmlpull.v1.XmlPullParser;
 
-public class MenuActivity extends AppCompatActivity {
+public class MenuActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_menu:
+
+
+
+                    try {
+                        //XmlPullParserFactory parser = XmlPullParserFactory.newInstance();
+                        // XmlPullParser p  = parser.newPullParser();
+                        // InputStream i = getAssets().open("testetese.xml");
+
+
+                        // FormDef def = XFormUtils.getFormFromInputStream(i, i.toString());
+                        FormDef formDef;
+                        String pathNameFile = "/data/data/com.example.mobiledatacolection/files/simpleform.xml";
+                        File formXml = new File(pathNameFile);
+                        String lastSavedSrc = FileUtils.getOrCreateLastSavedSrc(formXml);
+                        formDef = XFormUtils.getFormFromFormXml(pathNameFile, lastSavedSrc);
+                        FormEntryController form = new FormEntryController(new FormEntryModel(formDef));
+                     //   FormLoaderTask.importData(formXml, form);
+
+                        FormEntryModel model = form.getModel();
+                        List<IFormElement> childrens = model.getForm().getChildren();
+                        for(IFormElement child : childrens){
+                            String match = findMatch(child.getTextID());
+                            System.out.println(match);
+                            System.out.println(child.getLabelInnerText());
+                            createNewActivity(match);
+                        }
+
+                       // model.getQuestionPrompt(model.getFormIndex());
+                       // System.out.println(model.getForm().getChildren().toArray()[0]);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    //createFormDefFromCacheOrXml("/Users/claudiasoares/TeseProjecto/MobileDataColection/app/src/main/res/xml",new File("testetese.xml"));
+                    return true;
+                case R.id.navigation_forms:
+                    openFragment(SmsFragment.newInstance("", ""));
+                    readFile();
+                    return true;
+                case R.id.navigation_loadforms:
+                    openFragment(NotificationFragment.newInstance("", ""));
+                    return true;
+            }
+            return false;
+        }
+
+    private String findMatch(String myString) {
+
+        String match = "";
+
+        // Pattern to find code
+        String pattern = "[A-Za-z]+:";  // Sequence of 8 digits
+        Pattern regEx = Pattern.compile(pattern);
+
+        // Find instance of pattern matches
+        Matcher m = regEx.matcher(myString);
+        if (m.find()) {
+            match = m.group(0);
+        }
+        return match;
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private void createNewActivity(String name){
+        Intent i = new Intent();
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setBackgroundColor(R.color.white);
+        LinearLayout.LayoutParams layoutForInner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        linearLayout.setLayoutParams(layoutForInner);
+
+        TextView tv1 = new TextView(this);
+        tv1.setText(name);
+        EditText edq = new EditText(this);
+        linearLayout.addView(tv1);
+        linearLayout.addView(edq);
+        openFragment(MenuFragment.newInstance(linearLayout));
+
+
+
+    }
     private Button loadForm;
     BottomNavigationView bottomNavigation;
     private FormDef formDef;
@@ -47,53 +144,13 @@ public class MenuActivity extends AppCompatActivity {
     /** Valid XML stub that can be parsed without error. */
     private static final String STUB_XML = "<?xml version='1.0' ?><stub />";
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         bottomNavigation = findViewById(R.id.bottom_navigation);
-        BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.navigation_menu:
-                                openFragment(MenuFragment.newInstance("", ""));
-
-                                try {
-                                    //XmlPullParserFactory parser = XmlPullParserFactory.newInstance();
-                                   // XmlPullParser p  = parser.newPullParser();
-                                   // InputStream i = getAssets().open("testetese.xml");
-
-
-                                   // FormDef def = XFormUtils.getFormFromInputStream(i, i.toString());
-                                    FormDef formDef;
-                                    String pathNameFile = "/data/data/com.example.mobiledatacolection/files/testetese1.xml";
-                                    File formXml = new File(pathNameFile);
-                                    String lastSavedSrc = FileUtils.getOrCreateLastSavedSrc(formXml);
-                                    formDef = XFormUtils.getFormFromFormXml(pathNameFile, lastSavedSrc);
-                                    FormLoaderTask.importData(formXml, new FormEntryController(new FormEntryModel(formDef)));
-
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                //createFormDefFromCacheOrXml("/Users/claudiasoares/TeseProjecto/MobileDataColection/app/src/main/res/xml",new File("testetese.xml"));
-                                return true;
-                            case R.id.navigation_forms:
-                                openFragment(SmsFragment.newInstance("", ""));
-                                readFile();
-                                return true;
-                            case R.id.navigation_loadforms:
-                                openFragment(NotificationFragment.newInstance("", ""));
-                                return true;
-                        }
-                        return false;
-                    }
-                };
-        bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
-
+        bottomNavigation.setOnNavigationItemSelectedListener(this);
         //initComponents();
-        
+
     }
 
     private void processParsing(XmlPullParser p) {

@@ -1,4 +1,4 @@
-package com.example.mobiledatacolection.widget;
+package com.example.mobiledatacolection.widget.interfaces;
 
 import org.javarosa.core.model.data.IAnswerData;
 

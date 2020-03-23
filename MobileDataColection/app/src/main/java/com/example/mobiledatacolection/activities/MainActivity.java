@@ -36,40 +36,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-       // Intent intent = new Intent(Intent.ACTION_VIEW);
-      //  intent.setType("vnd.android.cursor.dir/vnd.odk.form");
-     //   startActivity(intent);
-        //startActivityForResult(intent, PICK_FORM_REQUEST);
-
-      /*  Intent intent1 = new Intent(Intent.ACTION_PICK);
-        intent1.setType("vnd.android.cursor.dir/vnd.odk.form");
-
-        intent1.setType("vnd.android.cursor.dir/vnd.odk.instance");
-
-        Intent intent2 = new Intent(Intent.ACTION_EDIT);
-        intent2.setData("content://org.odk.collect.android.provider.odk.forms/forms/2");
-        startActivity(intent2);*/
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == PICK_FORM_REQUEST) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                // The Intent's data URI identifies which form was selected.
-                Uri formUri = data.getData();
-                // Do something with the form here
-            }
-        }
     }
 
-    private View.OnClickListener login(View v){
+
+    private void login(View v){
         Editable email = emailText.getText();
         Editable password = passwordText.getText();
         // passar para outra activity
         Intent intent = new Intent(this, MenuActivity.class);
         startActivity(intent);
-        return null;
     }
 }

@@ -6,6 +6,7 @@ import android.telephony.SmsManager;
 import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.preferences.PropertyManager;
 import com.example.mobiledatacolection.views.MobileDataCollectView;
+import com.example.mobiledatacolection.widget.QuestionWidget;
 
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -80,7 +81,7 @@ public interface AppDependencyComponent {
 
     // void inject(GoogleSheetsUploaderActivity googleSheetsUploaderActivity);
 
-    // void inject(QuestionWidget questionWidget);
+    void inject(QuestionWidget questionWidget);
 
     // void inject(ExStringWidget exStringWidget);
 

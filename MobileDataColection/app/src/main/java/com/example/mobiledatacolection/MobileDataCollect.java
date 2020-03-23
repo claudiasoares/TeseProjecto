@@ -28,9 +28,11 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.example.mobiledatacolection.dragger.AppDependencyComponent;
 import com.example.mobiledatacolection.preferences.GeneralSharedPreferences;
 import com.example.mobiledatacolection.tasks.FormController;
+import com.example.mobiledatacolection.utils.FileUtils;
 
 import org.javarosa.core.services.PropertyManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Locale;
 
@@ -91,44 +93,6 @@ public class MobileDataCollect extends Application {
         return Integer.parseInt(String.valueOf(GeneralSharedPreferences.getInstance().get(KEY_FONT_SIZE)));
     }
 
-    /**
-     * Creates required directories on the SDCard (or other external storage)
-     *
-     * @throws RuntimeException if there is no SDCard or the directory exists as a non directory
-
-    public static void createDirs() throws RuntimeException {
-        String cardstatus = Environment.getExternalStorageState();
-        if (!cardstatus.equals(Environment.MEDIA_MOUNTED)) {
-            throw new RuntimeException(
-                    MobileDataCollect.getInstance().getString(R.string.sdcard_unmounted, cardstatus));
-        }
-
-        String[] dirs = {
-                ODK_ROOT, FORMS_PATH, INSTANCES_PATH, CACHE_PATH, METADATA_PATH, OFFLINE_LAYERS
-        };
-
-        for (String dirName : dirs) {
-            File dir = new File(dirName);
-            if (!dir.exists()) {
-                if (!dir.mkdirs()) {
-                    String message = getInstance().getString(R.string.cannot_create_directory, dirName);
-                    Timber.w(message);
-                    throw new RuntimeException(message);
-                }
-            } else {
-                if (!dir.isDirectory()) {
-                    String message = getInstance().getString(R.string.not_a_directory, dirName);
-                    Timber.w(message);
-                    throw new RuntimeException(message);
-                }
-            }
-        }
-    }
-     */
-    /**
-     * Predicate that tests whether a directory path might refer to an
-     * ODK Tables instance data directory (e.g., for media attachments).
-     */
     public static boolean isODKTablesInstanceDataDirectory(File directory) {
         /*
          * Special check to prevent deletion of files that
@@ -144,6 +108,20 @@ public class MobileDataCollect extends Application {
             }
         }
         return false;
+    }
+
+    public static String getCurrentFormIdentifierHash() {
+        String formIdentifier = "";
+        FormController formController = getInstance().getFormController();
+        if (formController != null) {
+            if (formController.getFormDef() != null) {
+                String formID = formController.getFormDef().getMainInstance()
+                        .getRoot().getAttributeValue("", "id");
+                formIdentifier = formController.getFormTitle() + " " + formID;
+            }
+        }
+
+        return FileUtils.getMd5Hash(new ByteArrayInputStream(formIdentifier.getBytes()));
     }
 
     @Nullable

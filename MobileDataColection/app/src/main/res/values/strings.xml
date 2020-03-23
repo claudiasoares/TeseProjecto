@@ -1,4 +1,55 @@
 <resources>
     <string name="app_name">MobileDataColection</string>
     <string name="default_splash_path">Mobile Data Collect Default</string>
+
+    <string name="app_theme">Theme</string>
+    <string name="theme_light">Light theme</string>
+    <string name="theme_dark">Dark theme</string>
+
+    <string name="font_size_extra_large">Extra Large</string>
+    <string name="font_size_large">Large</string>
+    <string name="font_size_medium">Medium</string>
+    <string name="font_size_small">Small</string>
+    <string name="font_size_extra_small">Extra Small</string>
+
+    <string name="swipe_navigation">Use horizontal swipes</string>
+    <string name="buttons_navigation">Use forward/backward buttons</string>
+    <string name="swipe_buttons_navigation">Use swipes and buttons</string>
+
+    <string name="image_size_large">Large (3072px)</string>
+    <string name="image_size_medium">Medium (2048px)</string>
+    <string name="image_size_small">Small (1024px)</string>
+    <string name="image_size_very_small">Very small (640px)</string>
+    <string name="image_size_original">Original size from camera (default)</string>
+
+    <string name="off">Off</string>
+    <string name="wifi_autosend">Wifi only</string>
+    <string name="cellular_autosend">Cellular only</string>
+    <string name="wifi_cellular_autosend">Wifi or cellular</string>
+
+    <string name="guidance_no">No</string>
+    <string name="guidance_yes">Yes - always shown</string>
+    <string name="guidance_yes_collapsed">Yes - collapsed</string>
+
+
+    <string name="ethiopian_month_1">Meskerem</string>
+    <string name="ethiopian_month_2">Tikimt</string>
+    <string name="ethiopian_month_3">Hidar</string>
+    <string name="ethiopian_month_4">Tahsas</string>
+    <string name="ethiopian_month_5">Tir</string>
+    <string name="ethiopian_month_6">Yekatit</string>
+    <string name="ethiopian_month_7">Megabit</string>
+    <string name="ethiopian_month_8">Miazia</string>
+    <string name="ethiopian_month_9">Ginbot</string>
+    <string name="ethiopian_month_10">Senie</string>
+    <string name="ethiopian_month_11">Hamlie</string>
+    <string name="ethiopian_month_12">Nehasie</string>
+    <string name="ethiopian_month_13">Pagumien</string>
+
+    <string name="never">Never</string>
+    <string name="every_fifteen_minutes">Every fifteen minutes</string>
+    <string name="every_one_hour">Every hour</string>
+    <string name="every_six_hours">Every six hours</string>
+    <string name="every_24_hours">Every 24 hours</string>
+    <string name="form_updates_available">Form updates available</string>
 </resources>
