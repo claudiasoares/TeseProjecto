@@ -36,13 +36,12 @@ dependencies {
 
     api project(path: ':javarosa')
     implementation "net.sf.kxml:kxml2:2.3.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
     compile group: 'com.jakewharton.timber', name: 'timber', version: '2.2.2'
     compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.0'
     compile group: 'javax.inject', name: 'javax.inject', version: '1'
     compile group: 'com.google.dagger', name: 'dagger', version: '2.10'
-
-
 
 
 }

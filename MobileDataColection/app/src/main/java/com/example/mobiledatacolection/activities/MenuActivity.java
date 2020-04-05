@@ -1,6 +1,7 @@
 package com.example.mobiledatacolection.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,10 +19,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.fragmentos.MenuFragment;
 import com.example.mobiledatacolection.fragmentos.NotificationFragment;
 import com.example.mobiledatacolection.fragmentos.SmsFragment;
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.tasks.FormController;
 import com.example.mobiledatacolection.tasks.FormLoaderTask;
 import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,7 +32,12 @@ import com.example.mobiledatacolection.utils.FileUtils;
 import com.google.android.material.navigation.NavigationView;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.IFormElement;
+import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -37,8 +46,12 @@ import org.javarosa.xform.util.XFormUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.*;
 
@@ -46,40 +59,41 @@ import org.xmlpull.v1.XmlPullParser;
 
 public class MenuActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-        @Override
+    WidgetFactory widget;
+    private HashMap<Integer, HashMap<Integer, Class>> hash;
+    private LinearLayout ll;
+    ScrollView scroll;
+    private Button loadForm;
+    BottomNavigationView bottomNavigation;
+    private FormDef formDef;
+    FormEntryModel model;
+    @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_menu:
-
-
-
+                    widget = new WidgetFactory();
+                    hash = widget.getHashMapControlType();
                     try {
-                        //XmlPullParserFactory parser = XmlPullParserFactory.newInstance();
-                        // XmlPullParser p  = parser.newPullParser();
-                        // InputStream i = getAssets().open("testetese.xml");
-
-
-                        // FormDef def = XFormUtils.getFormFromInputStream(i, i.toString());
-                        FormDef formDef;
-                        String pathNameFile = "/data/data/com.example.mobiledatacolection/files/simpleform.xml";
+                        String pathNameFile = "/data/data/com.example.mobiledatacolection/files/testp.xml";
                         File formXml = new File(pathNameFile);
                         String lastSavedSrc = FileUtils.getOrCreateLastSavedSrc(formXml);
                         formDef = XFormUtils.getFormFromFormXml(pathNameFile, lastSavedSrc);
-                        FormEntryController form = new FormEntryController(new FormEntryModel(formDef));
-                     //   FormLoaderTask.importData(formXml, form);
+                        model = new FormEntryModel(formDef);
+                        FormIndex index = model.getFormIndex();
+                        FormEntryCaption fec = new FormEntryCaption(formDef,index);
+                        FormEntryController form = new FormEntryController(model);
 
-                        FormEntryModel model = form.getModel();
-                        List<IFormElement> childrens = model.getForm().getChildren();
-                        for(IFormElement child : childrens){
-                            String match = findMatch(child.getTextID());
-                            System.out.println(match);
-                            System.out.println(child.getLabelInnerText());
-                            createNewActivity(match);
-                        }
 
-                       // model.getQuestionPrompt(model.getFormIndex());
-                       // System.out.println(model.getForm().getChildren().toArray()[0]);
+                        ll = new LinearLayout(this);
+                        Context context;
+                        scroll = new ScrollView(this);
+
+                        recursividade(formDef, form, index);
+                        scroll.addView(ll);
+                        openFragment(MenuFragment.newInstance(scroll));
+
                     } catch (Exception e) {
+                        openFragment(MenuFragment.newInstance(scroll));
                         e.printStackTrace();
                     }
 
@@ -112,28 +126,69 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
         return match;
     }
 
+    @Nullable
+    private FormController getFormController() {
+        return getFormController(false);
+    }
+
+    @Nullable
+    private FormController getFormController(boolean formReloading) {
+        FormController formController = MobileDataCollect.getInstance().getFormController();
+        if (formController == null) {
+
+        }
+
+        return formController;
+    }
+
+    private IFormElement recursividade(IFormElement form, FormEntryController formEntryController, FormIndex index){
+        List<IFormElement> childrens = form.getChildren();
+
+        if( childrens == null){
+            IDataReference bind = form.getBind();
+            List<TreeElement> attributes = form.getAdditionalAttributes();
+
+            FormEntryPrompt fep = new FormEntryPrompt(formDef,index);
+            int datatype = fep.getDataType();
+            //fep.getDataType();
+            QuestionDef qd = (QuestionDef)form;
+            Class c = hash.get(qd.getControlType()).get(datatype);
+            Constructor constructor[] = c.getConstructors();
+
+            Object[] intArgs = new Object[] { this , ll, qd};
+            Class noparams[] = {};
+            try {
+                Object instance = constructor[0].newInstance(intArgs);
+                Method method = c.getDeclaredMethod("getElement", noparams);
+
+                ll = (LinearLayout) method.invoke(instance,null);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(form.getLabelInnerText());
+            return null;
+        }
+        FormEntryController formController;
+        for(IFormElement child : childrens){
+            index = model.incrementIndex(index,true);
+
+
+            recursividade(child,formEntryController, index);
+        }
+        return null;
+    }
+
     @SuppressLint("ResourceAsColor")
     private void createNewActivity(String name){
-        Intent i = new Intent();
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setBackgroundColor(R.color.white);
-        LinearLayout.LayoutParams layoutForInner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        linearLayout.setLayoutParams(layoutForInner);
 
-        TextView tv1 = new TextView(this);
-        tv1.setText(name);
-        EditText edq = new EditText(this);
-        linearLayout.addView(tv1);
-        linearLayout.addView(edq);
-        openFragment(MenuFragment.newInstance(linearLayout));
+        //openFragment(MenuFragment.newInstance(linearLayout));
 
 
 
     }
-    private Button loadForm;
-    BottomNavigationView bottomNavigation;
-    private FormDef formDef;
+
 
     /** Suffix for the form media directory. */
     public static final String MEDIA_SUFFIX = "-media";

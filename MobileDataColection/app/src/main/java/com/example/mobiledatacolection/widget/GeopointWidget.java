@@ -1,9 +1,12 @@
 package com.example.mobiledatacolection.widget;
 
 import android.content.Context;
+import android.widget.LinearLayout;
 
-public class GeopointWidget extends  QuestionWidget{
-    public GeopointWidget(Context context, QuestionDetails questionDetails) {
-        super(context, questionDetails);
+import org.javarosa.core.model.QuestionDef;
+
+public class GeopointWidget{
+    public GeopointWidget(Context context, LinearLayout screen, QuestionDef form) {
+
     }
 }

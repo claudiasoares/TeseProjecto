@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.mobiledatacolection.R;
@@ -22,12 +23,12 @@ public class MenuFragment extends Fragment  {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     // TODO: Rename and change types of parameters
-    private static LinearLayout layout;
+    private static ScrollView layout;
     public MenuFragment() {
         // Required empty public constructor
     }
 
-    public static MenuFragment newInstance(LinearLayout linearLayout) {
+    public static MenuFragment newInstance(ScrollView linearLayout) {
         MenuFragment fragment = new MenuFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);

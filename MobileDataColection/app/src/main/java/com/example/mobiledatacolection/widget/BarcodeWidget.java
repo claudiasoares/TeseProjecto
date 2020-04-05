@@ -1,9 +1,12 @@
 package com.example.mobiledatacolection.widget;
 
 import android.content.Context;
+import android.widget.LinearLayout;
 
-public class BarcodeWidget extends  QuestionWidget{
-    public BarcodeWidget(Context context, QuestionDetails questionDetails) {
-        super(context, questionDetails);
+import org.javarosa.core.model.QuestionDef;
+
+public class BarcodeWidget {
+    public BarcodeWidget(Context context, LinearLayout screen, QuestionDef form){
+
     }
 }

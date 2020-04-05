@@ -2,10 +2,6 @@ package com.example.mobiledatacolection.widget;
 
 import android.content.Context;
 import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
-import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.widget.interfaces.Widget;
 
 import org.javarosa.form.api.FormEntryPrompt;
@@ -17,20 +13,18 @@ import static org.javarosa.core.model.Constants.*;
 public class WidgetFactory {
 
 
-    private final HashMap<Integer, QuestionWidget> contantsGetDataTypeControlFileCapture;
-    private final HashMap<Integer, HashMap<Integer, QuestionWidget>> contantsGetControlType;
-    private final HashMap<Integer, QuestionWidget> contantsGetDataTypeControlInput;
-    private final Context context;
-    private final QuestionDetails questionDetails;
-    private final boolean readOnlyOverride;
 
-    private WidgetFactory(Context context, FormEntryPrompt prompt,  boolean readOnlyOverride) {
-        questionDetails = new QuestionDetails(prompt, MobileDataCollect.getCurrentFormIdentifierHash());
-        contantsGetControlType = new HashMap<Integer, HashMap<Integer, QuestionWidget>>();
-        contantsGetDataTypeControlInput = new HashMap<Integer, QuestionWidget>();
-        contantsGetDataTypeControlFileCapture = new HashMap<Integer, QuestionWidget>();
-        this.readOnlyOverride = readOnlyOverride;
-        this.context = context;
+    private  HashMap<Integer, HashMap<Integer, Class>> contantsGetControlType;
+    private HashMap<Integer, Class> contantsGetDataTypeInput;
+
+    private  Context context;
+    private  QuestionDetails questionDetails;
+    private  boolean readOnlyOverride;
+
+    public WidgetFactory() {
+       // questionDetails = new QuestionDetails(prompt, MobileDataCollect.getCurrentFormIdentifierHash());
+        contantsGetControlType = new HashMap<Integer, HashMap<Integer, Class>>();
+        contantsGetDataTypeInput = new HashMap<Integer, Class>();
         populateDataTypeControlInput();
         populateControlType();
 
@@ -38,21 +32,21 @@ public class WidgetFactory {
     }
 
     private void populateDataTypeControlInput() {
-        contantsGetDataTypeControlInput.put(DATATYPE_DATE_TIME, new DateTimeWidget(context, questionDetails ));
-        contantsGetDataTypeControlInput.put(DATATYPE_TIME, new TimeWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_DECIMAL, new DecimalWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_INTEGER, new IntegerWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_GEOPOINT, new GeopointWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_GEOSHAPE, new GeoshapeWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_GEOTRACE, new GeotraceWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_BARCODE, new BarcodeWidget(context, questionDetails));
-        contantsGetDataTypeControlInput.put(DATATYPE_TEXT, new TextWidget(context, questionDetails, readOnlyOverride ));
-        contantsGetDataTypeControlInput.put(DATATYPE_BOOLEAN, new BooleanWidget(context, questionDetails));
+        contantsGetDataTypeInput.put(DATATYPE_DATE_TIME, DateTimeWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_DATE, DateWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_TIME, TimeWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_DECIMAL, DecimalWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_INTEGER, IntegerWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_GEOPOINT, GeopointWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_GEOSHAPE, GeoshapeWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_GEOTRACE, GeotraceWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_BARCODE, BarcodeWidget.class);
+        contantsGetDataTypeInput.put(DATATYPE_TEXT, TextWidget.class);
     }
 
     private void populateControlType() {
-        contantsGetControlType.put(CONTROL_INPUT, contantsGetDataTypeControlInput);
-        contantsGetControlType.put(CONTROL_FILE_CAPTURE, contantsGetDataTypeControlFileCapture);
+        contantsGetControlType.put(CONTROL_INPUT, contantsGetDataTypeInput);
+        //contantsGetControlType.put(CONTROL_FILE_CAPTURE, Arb);
        /* contantsGetControlType.put(CONTROL_IMAGE_CHOOSE, );
         contantsGetControlType.put(CONTROL_AUDIO_CAPTURE, );
         contantsGetControlType.put(CONTROL_OSM_CAPTURE, );
@@ -64,8 +58,10 @@ public class WidgetFactory {
         contantsGetControlType.put(CONTROL_RANGE, );*/
 
     }
+    public HashMap<Integer, HashMap<Integer, Class>> getHashMapControlType(){
+        return contantsGetControlType;
+    }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public Widget createWidget(FormEntryPrompt prompt, Context context,
                                boolean readOnlyOverride) {
 
@@ -74,9 +70,10 @@ public class WidgetFactory {
 
         // final QuestionWidget questionWidget;
 
-        HashMap<Integer, QuestionWidget> t = contantsGetControlType.get(prompt.getControlType());
-        QuestionWidget e = t.get(prompt.getDataType());
-        return e;
+        HashMap<Integer, Class> t = contantsGetControlType.get(prompt.getControlType());
+        Class e = t.get(prompt.getDataType());
+       // e.newInstance();
+        return null;
 
     }
 }

@@ -1,9 +1,12 @@
 package com.example.mobiledatacolection.widget;
 
 import android.content.Context;
+import android.widget.LinearLayout;
 
-class DecimalWidget extends  QuestionWidget {
-    public DecimalWidget(Context context, QuestionDetails questionDetails) {
-        super(context, questionDetails);
+import org.javarosa.core.model.QuestionDef;
+
+public class DecimalWidget {
+    public DecimalWidget(Context context, LinearLayout screen, QuestionDef form) {
+
     }
 }

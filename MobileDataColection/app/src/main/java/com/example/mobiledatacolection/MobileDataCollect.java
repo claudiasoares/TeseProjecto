@@ -66,6 +66,7 @@ public class MobileDataCollect extends Application {
     public static final String SETTINGS = ODK_ROOT + File.separator + "settings";
 
     public static final int CLICK_DEBOUNCE_MS = 1000;
+    public static final String FIELD_LIST = "field-list";
 
     public static String defaultSysLanguage;
     private static MobileDataCollect singleton;
