@@ -19,7 +19,7 @@ public class MobileDataCollectView  extends FrameLayout implements View.OnLongCl
                                  FormEntryCaption[] groups, boolean advancingPage) {
         super(context);
         getComponent(context).inject(this);
-        inflate(getContext(), R.layout.scroll_view, this);
+        inflate(getContext(), R.layout.activity_menu, this);
     }
 
     @Override

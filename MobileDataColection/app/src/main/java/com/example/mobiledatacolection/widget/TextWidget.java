@@ -26,18 +26,14 @@ public class TextWidget{
   @SuppressLint("ResourceAsColor")
   public TextWidget(Context context, LinearLayout screen, QuestionDef form) {
     this.screen = screen;
-    screen.setOrientation(LinearLayout.VERTICAL);
-    LinearLayout.LayoutParams layoutForInner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-    layoutForInner.setMargins(10,10,10,10);
-    screen.setLayoutParams(layoutForInner);
     String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
     TextView tv1 = new TextView(context);
     tv1.setTextColor(Color.BLACK);
     tv1.setTypeface(Typeface.DEFAULT_BOLD);
     tv1.setText(name);
     EditText edq = new EditText(context);
-    screen.addView(tv1);
-    screen.addView(edq);
+    this.screen.addView(tv1);
+    this.screen.addView(edq);
   }
 
   public LinearLayout getElement(){

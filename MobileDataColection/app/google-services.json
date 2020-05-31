@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "474281143454",
+    "firebase_url": "https://mobiledatacolection.firebaseio.com",
+    "project_id": "mobiledatacolection",
+    "storage_bucket": "mobiledatacolection.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474281143454:android:ca9c27c3cc2dcccb785f8f",
+        "android_client_info": {
+          "package_name": "com.example.mobiledatacolection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "474281143454-82mqo3ufdgffd01sgg0gqi76lqgjhj30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCd5yUTMSjWVODnTVez8SjvdN7v4-sVz9U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "474281143454-82mqo3ufdgffd01sgg0gqi76lqgjhj30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

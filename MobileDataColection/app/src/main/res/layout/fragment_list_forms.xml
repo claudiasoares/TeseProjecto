@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".fragmentos.ListFormsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/synchro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Synchronize with server"
+            android:background="@drawable/shapessignup"
+            android:textColor="@color/smookegrey"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="120px">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/list_files"
+                android:layout_width="match_parent"
+                android:layout_height="550dp"
+                android:dividerHeight="5dp"
+                android:padding="@dimen/margin_standard">
+
+            </ListView>
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>

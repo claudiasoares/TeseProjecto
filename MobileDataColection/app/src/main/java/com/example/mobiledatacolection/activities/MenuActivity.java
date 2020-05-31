@@ -4,7 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
+import android.os.Environment;
 import android.os.Parcelable;
+import android.telephony.mbms.FileInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -16,26 +19,33 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.mobiledatacolection.MobileDataCollect;
+import com.example.mobiledatacolection.adapters.WidgetFragmentCollectionAdapter;
+import com.example.mobiledatacolection.fragmentos.ListFormsFragment;
 import com.example.mobiledatacolection.fragmentos.MenuFragment;
 import com.example.mobiledatacolection.fragmentos.NotificationFragment;
-import com.example.mobiledatacolection.fragmentos.SmsFragment;
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.fragmentos.WidgetFragment;
+import com.example.mobiledatacolection.model.Forms;
 import com.example.mobiledatacolection.tasks.FormController;
 import com.example.mobiledatacolection.tasks.FormLoaderTask;
 import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.mobiledatacolection.utils.FileUtils;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
@@ -50,6 +60,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,46 +75,26 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
     WidgetFactory widget;
     private HashMap<Integer, HashMap<Integer, Class>> hash;
     private LinearLayout ll;
-    ScrollView scroll;
+
     private Button loadForm;
     BottomNavigationView bottomNavigation;
     private FormDef formDef;
     FormEntryModel model;
+    TabLayout tabLayout;
+    WidgetFragmentCollectionAdapter adapter;
+    ViewPager page;
+    private String company;
+    private String user;
+
     @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_menu:
-                    widget = new WidgetFactory();
-                    hash = widget.getHashMapControlType();
-                    try {
-                        String pathNameFile = "/data/data/com.example.mobiledatacolection/files/testp.xml";
-                        File formXml = new File(pathNameFile);
-                        String lastSavedSrc = FileUtils.getOrCreateLastSavedSrc(formXml);
-                        formDef = XFormUtils.getFormFromFormXml(pathNameFile, lastSavedSrc);
-                        model = new FormEntryModel(formDef);
-                        FormIndex index = model.getFormIndex();
-                        FormEntryCaption fec = new FormEntryCaption(formDef,index);
-                        FormEntryController form = new FormEntryController(model);
-
-
-                        ll = new LinearLayout(this);
-                        Context context;
-                        scroll = new ScrollView(this);
-
-                        recursividade(formDef, form, index);
-                        scroll.addView(ll);
-                        openFragment(MenuFragment.newInstance(scroll));
-
-                    } catch (Exception e) {
-                        openFragment(MenuFragment.newInstance(scroll));
-                        e.printStackTrace();
-                    }
-
-                    //createFormDefFromCacheOrXml("/Users/claudiasoares/TeseProjecto/MobileDataColection/app/src/main/res/xml",new File("testetese.xml"));
+                     openFragment( MenuFragment.newInstance());
                     return true;
                 case R.id.navigation_forms:
-                    openFragment(SmsFragment.newInstance("", ""));
-                    readFile();
+                    ArrayList <Forms> files = readAllFilesFileExplorer();
+                    openFragment(ListFormsFragment.newInstance(files,company,user));
                     return true;
                 case R.id.navigation_loadforms:
                     openFragment(NotificationFragment.newInstance("", ""));
@@ -109,6 +102,17 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
             }
             return false;
         }
+
+    private ArrayList <Forms> readAllFilesFileExplorer() {
+        File appFilesDirectory = getFilesDir();
+        ArrayList <Forms> existsFiles = new ArrayList<Forms>();
+        File[] files = appFilesDirectory.listFiles();
+        for (File file: files ) {
+            if(file.isFile())
+                existsFiles.add(new Forms(file.getName(), company, null, null, 0, null));
+        }
+        return existsFiles;
+    }
 
     private String findMatch(String myString) {
 
@@ -141,44 +145,7 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
         return formController;
     }
 
-    private IFormElement recursividade(IFormElement form, FormEntryController formEntryController, FormIndex index){
-        List<IFormElement> childrens = form.getChildren();
 
-        if( childrens == null){
-            IDataReference bind = form.getBind();
-            List<TreeElement> attributes = form.getAdditionalAttributes();
-
-            FormEntryPrompt fep = new FormEntryPrompt(formDef,index);
-            int datatype = fep.getDataType();
-            //fep.getDataType();
-            QuestionDef qd = (QuestionDef)form;
-            Class c = hash.get(qd.getControlType()).get(datatype);
-            Constructor constructor[] = c.getConstructors();
-
-            Object[] intArgs = new Object[] { this , ll, qd};
-            Class noparams[] = {};
-            try {
-                Object instance = constructor[0].newInstance(intArgs);
-                Method method = c.getDeclaredMethod("getElement", noparams);
-
-                ll = (LinearLayout) method.invoke(instance,null);
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println(form.getLabelInnerText());
-            return null;
-        }
-        FormEntryController formController;
-        for(IFormElement child : childrens){
-            index = model.incrementIndex(index,true);
-
-
-            recursividade(child,formEntryController, index);
-        }
-        return null;
-    }
 
     @SuppressLint("ResourceAsColor")
     private void createNewActivity(String name){
@@ -202,6 +169,8 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+        company = getIntent().getStringExtra("COMPANY");
+        user = getIntent().getStringExtra("USERNAME");
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(this);
         //initComponents();

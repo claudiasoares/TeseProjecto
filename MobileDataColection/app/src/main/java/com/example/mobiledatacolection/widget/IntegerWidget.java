@@ -15,10 +15,6 @@ public class IntegerWidget {
 
     public IntegerWidget(Context context, LinearLayout screen, QuestionDef form) {
         this.screen = screen;
-        screen.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams layoutForInner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        layoutForInner.setMargins(10,10,10,10);
-        screen.setLayoutParams(layoutForInner);
         String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         TextView tv1 = new TextView(context);
         tv1.setTextColor(Color.BLACK);

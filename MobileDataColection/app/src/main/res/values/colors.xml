@@ -16,5 +16,5 @@
     <color name="primaryTextColor">#ccccff</color>
     <color name="secondaryTextColor">#9999ff</color>
     <color name="warningColor">@color/red</color>
-
+    <color name="smookegrey">#F5F5F5</color>
 </resources>
