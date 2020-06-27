@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
     implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.google.firebase:firebase-auth:17.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
     compile group: 'com.jakewharton.timber', name: 'timber', version: '2.2.2'
     compile group: 'javax.inject', name: 'javax.inject', version: '1'

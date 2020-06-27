@@ -10,8 +10,11 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.Layout;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
@@ -28,11 +32,30 @@ import androidx.fragment.app.DialogFragment;
 import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.activities.FormActivity;
 import com.example.mobiledatacolection.fragmentos.widget.TimePickerFragment;
+import com.example.mobiledatacolection.utils.UtilsFirebase;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.LineNumberReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
 import java.util.zip.Inflater;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class TimeWidget {
     private final LinearLayout screen;
@@ -43,56 +66,11 @@ public class TimeWidget {
     private TextView mDisplayDate;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     private Context context;
-    @SuppressLint("ResourceType")
-    public TimeWidget(Context context, LinearLayout screen, QuestionDef form) {
+
+    public TimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version) {
         this.screen = screen;
         String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
-        /*TextView tv1 = new TextView(context);
-        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams1.setMargins(0, 0, 0, 0);
-        tv1.setLayoutParams(layoutParams1);
-        tv1.setTextColor(Color.BLACK);
-        tv1.setTypeface(Typeface.DEFAULT_BOLD);
-        tv1.setText(name);
-        TimePicker time = new TimePicker(context);
-        final Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);;
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.setMargins(0, 0, 0, 0);
-        time.setLayoutParams(layoutParams);
-
-        time.setScaleX((float) 0.6);
-        time.setScaleY((float) 0.6);
-        time.set
-        time.setHour(hour);
-        time.setMinute(minute);
-        screen.addView(tv1);
-        screen.addView(time);*/
-        /**
-         *
-         * <LinearLayout
-         *             android:layout_width="match_parent"
-         *             android:layout_height="wrap_content"
-         *             android:orientation="horizontal">
-         *
-         *             <TextView
-         *                 android:id="@+id/textView5"
-         *                 android:layout_width="wrap_content"
-         *                 android:layout_height="wrap_content"
-         *                 android:layout_weight="1"
-         *                 android:text="TextView" />
-         *
-         *             <Button
-         *                 android:id="@+id/button5"
-         *                 android:layout_width="40px"
-         *                 android:layout_height="100px"
-         *                 android:layout_weight="1"
-         *                 android:text="Button" />
-         *         </LinearLayout>
-         *
-         */
 
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -127,6 +105,39 @@ public class TimeWidget {
             @Override
             public void onClick(View view) {
                 showTime(hour,min, name);
+            }
+        });
+        textView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Since I can connect from multiple devices, we store each connection instance separately
+                // any time that connectionsRef's value is null (i.e. has no children) I am offline
+                FirebaseDatabase database = UtilsFirebase.getDatabase();
+                final DatabaseReference myConnectionsRef = database.getReference("data");
+                final DatabaseReference connectedRef = database.getReference(".info/connected");
+                connectedRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = snapshot.getValue(Boolean.class);
+                        if (connected) {
+                            DatabaseReference con = myConnectionsRef.push();
+                            con.onDisconnect().setValue(charSequence.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.w("timeWidget", "Listener was cancelled at .info/connected");
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
         linearLayout.addView(textView);

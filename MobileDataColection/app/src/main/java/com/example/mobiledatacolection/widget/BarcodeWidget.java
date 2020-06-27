@@ -21,7 +21,7 @@ public class BarcodeWidget {
     // private final Button barcodeButton;
     // private final TextView stringAnswer;
     private final LinearLayout screen;
-    public BarcodeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt formEntryPrompt){
+    public BarcodeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt formEntryPrompt, int version){
         this.screen = screen;
         screen.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams layoutForInner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);

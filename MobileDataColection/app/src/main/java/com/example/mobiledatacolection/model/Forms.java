@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.example.mobiledatacolection.dto.Form;
+import com.example.mobiledatacolection.utils.UtilsFirebase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -43,7 +44,7 @@ public class Forms {
                     //the value of progress is a placeholder here....
                     Forms form = new Forms(filename,company,category,description,version,files);
                     writeFileOnInternalStorage(context,filename,files);
-                    writeFirebase(form);
+                    //writeFirebase(form);
                     formList.add(form);
                     Log.v("FormList", "Filename " + filename + "company " + company + "category " + category + "description" + description);
                 }
@@ -79,16 +80,15 @@ public class Forms {
         }
     }
 
-    public static void writeFirebase(Forms form){
+    /*public static void writeFirebase(Forms form){
         // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("forms");
+        DatabaseReference myRef = UtilsFirebase.getDatabase().getReference("forms");
         String filename = form.filename.split("\\.")[0];
         DatabaseReference formRef = myRef.child(filename);
         Map<String, Forms> hash = new HashMap<String, Forms>();
         hash.put(filename, form);
         formRef.setValue(hash);
-    }
+    }*/
 
     public String getFilename() {
         return filename;

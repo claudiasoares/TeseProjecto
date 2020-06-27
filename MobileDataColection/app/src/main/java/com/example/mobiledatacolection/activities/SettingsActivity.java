@@ -69,6 +69,10 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onDestroy() {
             super.onDestroy();
+
+            SharedPreferences.Editor editor = preferencesServer.edit();
+            editor.putString("server", preferencesServer.getString("server",""));
+            editor.commit();
             Toast.makeText(getContext(), preferencesServer.getString("server",""),Toast.LENGTH_SHORT).show();
         }
     }

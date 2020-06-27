@@ -130,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
         boolean existsUser = false;
         // Instantiate the RequestQueue.
         //Some url endpoint that you may have
+        preferencesServer = this.getSharedPreferences("com.example.mobiledatacolection_preferences", MODE_PRIVATE);
+        server = preferencesServer.getString("server","");
         String myUrl = server + "api/allusers";
         //String to place our result in
         String result;

@@ -1,11 +1,17 @@
 package com.example.mobiledatacolection.widget;
 
 import android.app.DatePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -14,15 +20,36 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.javarosa.core.model.QuestionDef;
+import com.example.mobiledatacolection.model.Forms;
+import com.example.mobiledatacolection.utils.UtilsFirebase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class DateTimeWidget {
+import org.javarosa.core.model.QuestionDef;
+import org.javarosa.form.api.FormEntryController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class DateTimeWidget  {
     private final LinearLayout screen;
     private final Context context;
     private final TextView textView;
     private final Button button;
+    private static final IntentFilter s_intentFilter ;
 
-    public DateTimeWidget(Context context, LinearLayout screen, QuestionDef form) {
+    static {
+        s_intentFilter = new IntentFilter();
+        s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
+        s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
+    }
+
+    public DateTimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryController fep, int version) {
+       // super(context,qd);
         this.screen = screen;
         String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
@@ -31,7 +58,7 @@ public class DateTimeWidget {
         LinearLayout.LayoutParams params
                 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         linearLayout.setLayoutParams(params);
-        params.setMargins(0, 5, 5, 0);
+        params.setMargins(0, 5, 5, 5);
 
         textView = new TextView(context);
         textView.setTextColor(Color.BLACK);
@@ -62,8 +89,43 @@ public class DateTimeWidget {
                 showDate(day, month, year, name);
             }
         });
+
         linearLayout.addView(textView);
         linearLayout.addView(button);
+        textView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Since I can connect from multiple devices, we store each connection instance separately
+                // any time that connectionsRef's value is null (i.e. has no children) I am offline
+                FirebaseDatabase database = UtilsFirebase.getDatabase();
+                final DatabaseReference myConnectionsRef = database.getReference("data");
+                final DatabaseReference connectedRef = database.getReference(".info/connected");
+                connectedRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = snapshot.getValue(Boolean.class);
+                        if (connected) {
+                            DatabaseReference con = myConnectionsRef.push();
+                            con.onDisconnect().setValue(charSequence.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.w("DateTimeWidget", "Listener was cancelled at .info/connected");
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+
+        });
         this.screen.addView(linearLayout);
 
     }

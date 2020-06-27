@@ -6,7 +6,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,7 +19,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.example.mobiledatacolection.utils.UtilsFirebase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryPrompt;
 
 public class DateWidget
 {
@@ -25,22 +37,10 @@ public class DateWidget
     private final Button button;
     private final Context context;
 
-    public DateWidget(Context context, LinearLayout screen, QuestionDef form) {
+    public DateWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version) {
         this.screen = screen;
         String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
-        /*  TextView tv1 = new TextView(context);
-        tv1.setTextColor(Color.BLACK);
-        tv1.setTypeface(Typeface.DEFAULT_BOLD);
-        tv1.setText(name);
-        DatePicker date = new DatePicker(context);
-        date.setScaleX((float) 0.6);
-        date.setScaleY((float) 0.6);
-
-        this.screen.addView(tv1);
-        this.screen.addView(date);
-*/
-
 
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -77,6 +77,40 @@ public class DateWidget
             public void onClick(View view) {
                 showDate(day, month, year, name);
             }
+        });
+        textView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Since I can connect from multiple devices, we store each connection instance separately
+                // any time that connectionsRef's value is null (i.e. has no children) I am offline
+                FirebaseDatabase database = UtilsFirebase.getDatabase();
+                final DatabaseReference myConnectionsRef = database.getReference("data");
+                final DatabaseReference connectedRef = database.getReference(".info/connected");
+                connectedRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = snapshot.getValue(Boolean.class);
+                        if (connected) {
+                            DatabaseReference con = myConnectionsRef.push();
+                            con.onDisconnect().setValue(charSequence.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.w("DateWidget", "Listener was cancelled at .info/connected");
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+
         });
         linearLayout.addView(textView);
         linearLayout.addView(button);

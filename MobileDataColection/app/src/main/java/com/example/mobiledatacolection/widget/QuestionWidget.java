@@ -1,11 +1,8 @@
 package com.example.mobiledatacolection.widget;
 
 import android.content.Context;
-import android.graphics.Typeface;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.text.method.TextKeyListener;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -14,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
-import android.widget.TextView;
 
 import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.utils.Themes;
@@ -139,7 +135,7 @@ public abstract class QuestionWidget extends RelativeLayout
 
             @Override
             public void afterTextChanged(Editable s) {
-                widgetValueChanged();
+               // widgetValueChanged(changedWidget);
             }
         });
 
@@ -173,7 +169,7 @@ public abstract class QuestionWidget extends RelativeLayout
         return answerEditText;
     }
 
-    public void widgetValueChanged() {
+    public void widgetValueChanged(QuestionWidget changedWidget) {
         if (valueChangedListener != null) {
             valueChangedListener.widgetValueChanged(this);
         }

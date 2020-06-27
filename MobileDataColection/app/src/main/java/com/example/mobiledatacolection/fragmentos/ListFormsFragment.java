@@ -1,12 +1,15 @@
 package com.example.mobiledatacolection.fragmentos;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -31,6 +34,7 @@ import com.example.mobiledatacolection.adapters.WidgetFragmentCollectionAdapter;
 import com.example.mobiledatacolection.http.HttpGetRequest;
 import com.example.mobiledatacolection.model.Forms;
 import com.example.mobiledatacolection.model.User;
+import com.example.mobiledatacolection.sqlLite.SQLLiteDBHelper;
 import com.example.mobiledatacolection.utils.FileUtils;
 import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.firebase.database.DataSnapshot;
@@ -38,6 +42,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firestore.v1beta1.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -46,6 +51,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +70,7 @@ public class ListFormsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String DEBUG_TAG = "List Forms";
+    private static final String DB = "forms";
     private static String user;
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -73,6 +80,14 @@ public class ListFormsFragment extends Fragment {
     private Object server;
     private SharedPreferences preferencesServer;
     private ListView lv;
+
+    public static final String FORMS_TABLE_NAME = "forms";
+    public static final String FORMS_COLUMN_ID = "_id";
+    public static final String FORMS_COLUMN_FILENAME = "filename";
+    public static final String FORMS_COLUMN_VERSION = "version";
+    public static final String FORMS_COLUMN_COMPANY = "company";
+    public static final String FORMS_COLUMN_CATEGORY = "category";
+    public static final String FORMS_COLUMN_FILE = "file";
 
     public ListFormsFragment() {
         // Required empty public constructor
@@ -148,6 +163,7 @@ public class ListFormsFragment extends Fragment {
             getFormsFromServer(company);
             showFormsName();
         }else{
+
             Toast.makeText(getContext(),"There is not connectivity!",Toast.LENGTH_SHORT);
         }
 
@@ -173,9 +189,26 @@ public class ListFormsFragment extends Fragment {
                 }
             }
            // saveFormsToDB(listForms);
+            saveFormsToDBSQLLite(listForms);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void saveFormsToDBSQLLite(List<Forms> listForms) {
+
+        SQLiteDatabase database = new SQLLiteDBHelper(getContext()).getWritableDatabase();
+
+        for (int i =0; i < listForms.size(); ++i){
+            ContentValues values = new ContentValues();
+            values.put(SQLLiteDBHelper.FORMS_COLUMN_FILENAME, listForms.get(i).getFilename());
+            values.put(SQLLiteDBHelper.FORMS_COLUMN_COMPANY, listForms.get(i).getCompany());
+            values.put(SQLLiteDBHelper.FORMS_COLUMN_CATEGORY, listForms.get(i).getCategory());
+            values.put(SQLLiteDBHelper.FORMS_COLUMN_VERSION, listForms.get(i).getVersion());
+            values.put(SQLLiteDBHelper.FORMS_COLUMN_FILE, listForms.get(i).getFiles());
+            long newRowId = database.insert(SQLLiteDBHelper.FORMS_TABLE_NAME, null, values);
+        }
+
     }
 
     private void saveFormsToDB(List<Forms> listForms) {
@@ -189,7 +222,16 @@ public class ListFormsFragment extends Fragment {
         }
     }
 
-    public void readDB(){
+    public Forms getForm (String filename, int version){
+        SQLiteDatabase database = new SQLLiteDBHelper(getContext()).getWritableDatabase();
+        String[] columns = new String[]{FORMS_COLUMN_ID, FORMS_COLUMN_CATEGORY, FORMS_COLUMN_COMPANY, FORMS_COLUMN_VERSION, FORMS_COLUMN_FILE};
+        Cursor cursor = database.query(FORMS_TABLE_NAME, allColumns, DB.ID + " = " +
+                idContacto, null,null, null, null);
+        cursor.moveToFirst();
+        return cursorToContacto(cursor);
+    }
+
+  /*  public void readDB(){
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("message");
@@ -213,7 +255,7 @@ public class ListFormsFragment extends Fragment {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
-    }
+    }*/
 
     private boolean hasConectivity() {
         ConnectivityManager connMgr =

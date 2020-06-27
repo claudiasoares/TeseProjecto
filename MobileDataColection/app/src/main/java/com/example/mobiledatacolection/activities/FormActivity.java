@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.utils.FileUtils;
+import com.example.mobiledatacolection.utils.UtilsFirebase;
+import com.example.mobiledatacolection.widget.QuestionDetails;
 import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -22,6 +24,8 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
@@ -65,8 +69,7 @@ public class FormActivity extends AppCompatActivity {
         } else {
             fileName= (String) savedInstanceState.getSerializable("name_of_file");
         }
-        database = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = database.getReference();
+        DatabaseReference databaseReference = UtilsFirebase.getDatabase().getReference();
         String fileNameWithoutExtension = fileName.split("\\.")[0];
         databaseReference.child("company").child(company).child("user").child(user).child(fileNameWithoutExtension);
         doRenderForm(fileName, databaseReference);
@@ -119,15 +122,17 @@ public class FormActivity extends AppCompatActivity {
         if( childrens == null){
             IDataReference bind = form.getBind();
             List<TreeElement> attributes = form.getAdditionalAttributes();
-
+            // IAnswerData answerData = new AnswerDataFactory()
             FormEntryPrompt fep = new FormEntryPrompt(formDef,index);
             int datatype = fep.getDataType();
+
             //fep.getDataType();
             QuestionDef qd = (QuestionDef)form;
+
             Class c = hash.get(qd.getControlType()).get(datatype);
             Constructor constructor[] = c.getConstructors();
-
-            Object[] intArgs = new Object[] { this , ll, qd};
+            QuestionDetails questionDetails = new QuestionDetails(fep);
+            Object[] intArgs = new Object[] { this , ll, qd, fep};
             Class noparams[] = {};
             try {
                 Object instance = constructor[0].newInstance(intArgs);
