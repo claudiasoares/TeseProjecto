@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -19,6 +20,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.example.mobiledatacolection.model.Forms;
 import com.example.mobiledatacolection.utils.UtilsFirebase;
@@ -40,6 +43,9 @@ public class DateTimeWidget  {
     private final TextView textView;
     private final Button button;
     private static final IntentFilter s_intentFilter ;
+    private final long delay = 1000; // 1 seconds after user stops typing
+    private long last_text_edit = 0;
+    private final Handler handler = new Handler();
 
     static {
         s_intentFilter = new IntentFilter();
@@ -48,9 +54,12 @@ public class DateTimeWidget  {
         s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
     }
 
-    public DateTimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryController fep, int version) {
+    private final DatabaseReference databaseReference;
+
+    public DateTimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryController fep, int version,DatabaseReference databaseReference) {
        // super(context,qd);
         this.screen = screen;
+        this.databaseReference = databaseReference;
         String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
         LinearLayout linearLayout = new LinearLayout(context);
@@ -64,6 +73,17 @@ public class DateTimeWidget  {
         textView.setTextColor(Color.BLACK);
         textView.setTypeface(Typeface.DEFAULT_BOLD);
         textView.setText(name);
+        databaseReference.child(name).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                textView.setText(name + ": " + dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         LinearLayout.LayoutParams paramsTextView
                 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
         linearLayout.setLayoutParams(params);
@@ -94,41 +114,51 @@ public class DateTimeWidget  {
         linearLayout.addView(button);
         textView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void beforeTextChanged (CharSequence s,int start, int count,
+                                           int after){
             }
-
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Since I can connect from multiple devices, we store each connection instance separately
-                // any time that connectionsRef's value is null (i.e. has no children) I am offline
-                FirebaseDatabase database = UtilsFirebase.getDatabase();
-                final DatabaseReference myConnectionsRef = database.getReference("data");
-                final DatabaseReference connectedRef = database.getReference(".info/connected");
+            public void onTextChanged ( final CharSequence s, int start, int before,
+                                        int count){
+                //You need to remove this to run only once
+                handler.removeCallbacks(input_finish_checker);
+
+            }
+            @Override
+            public void afterTextChanged ( final Editable s){
+                //avoid triggering event when text is empty
+                if (s.length() > 0) {
+                    last_text_edit = System.currentTimeMillis();
+                    handler.postDelayed(input_finish_checker, delay);
+                } else {
+
+                }
+            }
+        });
+        this.screen.addView(linearLayout);
+
+    }
+
+    private Runnable input_finish_checker = new Runnable() {
+        public void run() {
+            if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
+                final DatabaseReference connectedRef = databaseReference.getDatabase().getReference(".info/connected");
                 connectedRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         boolean connected = snapshot.getValue(Boolean.class);
                         if (connected) {
-                            DatabaseReference con = myConnectionsRef.push();
-                            con.onDisconnect().setValue(charSequence.toString());
+                            databaseReference.child(textView.getText().toString().split(": ")[0]).onDisconnect().setValue(textView.getText().toString().split(": ")[1]);
                         }
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError error) {
-                        Log.w("DateTimeWidget", "Listener was cancelled at .info/connected");
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
                     }
                 });
             }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-
-        });
-        this.screen.addView(linearLayout);
-
-    }
+        }
+    };
 
     void showDate(int day, int month, int year, String name) {
         DatePickerDialog mDatePicker;

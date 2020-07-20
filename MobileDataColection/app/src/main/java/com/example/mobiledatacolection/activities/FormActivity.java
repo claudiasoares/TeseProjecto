@@ -4,14 +4,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.fragmentos.ListFormsSavedFragment;
+import com.example.mobiledatacolection.model.FormsFill;
+import com.example.mobiledatacolection.sqlLite.SQLLiteDBHelper;
+import com.example.mobiledatacolection.sqlLite.crudOperations.CrudFormsFill;
 import com.example.mobiledatacolection.utils.FileUtils;
 import com.example.mobiledatacolection.utils.UtilsFirebase;
 import com.example.mobiledatacolection.widget.QuestionDetails;
@@ -50,6 +58,10 @@ public class FormActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private String user;
     private String company;
+    private int version;
+    private String createdon;
+    private DatabaseReference databaseReference;
+    private String fileNameWithoutExtension;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +70,8 @@ public class FormActivity extends AppCompatActivity {
         String fileName;
         company = getIntent().getStringExtra("COMPANY");
         user = getIntent().getStringExtra("USERNAME");
+        version = getIntent().getIntExtra("VERSION",0);
+        createdon = getIntent().getStringExtra("CREATEDON");
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
@@ -69,12 +83,14 @@ public class FormActivity extends AppCompatActivity {
         } else {
             fileName= (String) savedInstanceState.getSerializable("name_of_file");
         }
-        DatabaseReference databaseReference = UtilsFirebase.getDatabase().getReference();
-        String fileNameWithoutExtension = fileName.split("\\.")[0];
-        databaseReference.child("company").child(company).child("user").child(user).child(fileNameWithoutExtension);
-        doRenderForm(fileName, databaseReference);
 
-        //addContentView(scroll, new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT , LinearLayout.LayoutParams.MATCH_PARENT ));
+        fileNameWithoutExtension = fileName.split("\\.")[0];
+        if(createdon != null){
+            databaseReference = UtilsFirebase.getDatabase()
+                    .getReference("/company/" + company + "/user/"+user+"/"+fileNameWithoutExtension+"/"+createdon+"/");
+
+        }
+        doRenderForm(fileName, databaseReference);
     }
 
     private void doRenderForm(String fileName, DatabaseReference databaseReference) {
@@ -100,23 +116,36 @@ public class FormActivity extends AppCompatActivity {
             ll.setLayoutParams(layoutForInner);
             ll.setOrientation(LinearLayout.VERTICAL);
 
-            recursividade(formDef, form, index);
+            recursividade(formDef, form, index,databaseReference);
 
             TextView textView = (TextView) findViewById(R.id.textView);
             textView.setText(fileName);
             scroll = (ScrollView) findViewById(R.id.scrollView);
+            Button buttonSubmit = new Button(this);
+            buttonSubmit.setText(R.string.buttonTextSubmmit);
+            buttonSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SQLLiteDBHelper sqlLite = new SQLLiteDBHelper(getBaseContext());
+                    CrudFormsFill crud = new CrudFormsFill(sqlLite);
+                    int rows = crud.update(new FormsFill(fileName,company,null,version,createdon,SQLLiteDBHelper.STATE_FORM_SUBMITTED,user));
+                    if(rows == 0) Toast.makeText(getBaseContext(),"Not updated! ",Toast.LENGTH_LONG);
+                    Intent intent = new Intent(getBaseContext(), MenuActivity.class);
+                    intent.putExtra("menu", R.id.navigation_formssaved);
+                    startActivity(intent);
+                    // To-Do change status form
 
-            scroll.addView(ll);
-
-            // WidgetFragmentCollectionAdapter adapter = new WidgetFragmentCollectionAdapter(getFragmentManager());
-            // page.setAdapter(adapter);
+                }
+            });
+            ll.addView(buttonSubmit);
+            scroll.addView(ll);;
         } catch (Exception e) {
 
             e.printStackTrace();
         }
     }
 
-    private IFormElement recursividade(IFormElement form, FormEntryController formEntryController, FormIndex index){
+    private IFormElement recursividade(IFormElement form, FormEntryController formEntryController, FormIndex index, DatabaseReference databaseReference){
         List<IFormElement> childrens = form.getChildren();
 
         if( childrens == null){
@@ -132,7 +161,7 @@ public class FormActivity extends AppCompatActivity {
             Class c = hash.get(qd.getControlType()).get(datatype);
             Constructor constructor[] = c.getConstructors();
             QuestionDetails questionDetails = new QuestionDetails(fep);
-            Object[] intArgs = new Object[] { this , ll, qd, fep};
+            Object[] intArgs = new Object[] { this , ll, qd, fep, version,databaseReference };
             Class noparams[] = {};
             try {
                 Object instance = constructor[0].newInstance(intArgs);
@@ -150,7 +179,7 @@ public class FormActivity extends AppCompatActivity {
             index = model.incrementIndex(index,true);
 
 
-            recursividade(child,formEntryController, index);
+            recursividade(child,formEntryController, index, databaseReference);
         }
         return null;
     }

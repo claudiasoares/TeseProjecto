@@ -9,7 +9,11 @@
         android:icon="@drawable/icons8_google_forms_50"
         android:title="Forms" />
     <item
-        android:id="@+id/navigation_loadforms"
-        android:icon="@drawable/icons8_upload_document_32"
-        android:title="Load Forms" />
+        android:id="@+id/navigation_formssaved"
+        android:icon="@drawable/ic_stat_name"
+        android:title="Forms Saved" />
+    <item
+        android:id="@+id/navigation_formssubmitted"
+        android:icon="@drawable/ic_baseline_cloud_done_24"
+        android:title="Forms Submitted" />
 </menu>

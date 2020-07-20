@@ -3,12 +3,17 @@ package com.example.mobiledatacolection.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.os.strictmode.SqliteObjectLeakedViolation;
 import android.telephony.mbms.FileInfo;
+import android.view.ActionProvider;
+import android.view.ContextMenu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,11 +32,16 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.adapters.WidgetFragmentCollectionAdapter;
 import com.example.mobiledatacolection.fragmentos.ListFormsFragment;
+import com.example.mobiledatacolection.fragmentos.ListFormsSavedFragment;
 import com.example.mobiledatacolection.fragmentos.MenuFragment;
 import com.example.mobiledatacolection.fragmentos.NotificationFragment;
 import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.fragmentos.WidgetFragment;
 import com.example.mobiledatacolection.model.Forms;
+import com.example.mobiledatacolection.model.FormsFill;
+import com.example.mobiledatacolection.sqlLite.SQLLiteDBHelper;
+import com.example.mobiledatacolection.sqlLite.crudOperations.CrudForms;
+import com.example.mobiledatacolection.sqlLite.crudOperations.CrudFormsFill;
 import com.example.mobiledatacolection.tasks.FormController;
 import com.example.mobiledatacolection.tasks.FormLoaderTask;
 import com.example.mobiledatacolection.widget.WidgetFactory;
@@ -88,20 +98,44 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
+            int menu=-1;
+            SQLLiteDBHelper sqlLite = new SQLLiteDBHelper(this);
+            if( getIntent().getExtras().getInt("menu") == 0 ){
+                menu = item.getItemId();
+            }else{
+                menu = getIntent().getExtras().getInt("menu");
+            }
+
+
+            switch (menu) {
                 case R.id.navigation_menu:
                      openFragment( MenuFragment.newInstance());
                     return true;
                 case R.id.navigation_forms:
-                    ArrayList <Forms> files = readAllFilesFileExplorer();
-                    openFragment(ListFormsFragment.newInstance(files,company,user));
+
+                    // ArrayList <Forms> files = readAllFilesFileExplorer();
+                    ArrayList <Forms> files = readAllFilesSQLLite(sqlLite);
+                    openFragment(ListFormsFragment.newInstance(files,company,user,new SQLLiteDBHelper(this)));
                     return true;
-                case R.id.navigation_loadforms:
-                    openFragment(NotificationFragment.newInstance("", ""));
+                case R.id.navigation_formssaved:
+                    ArrayList<FormsFill> formsfill = readAllFormsFill(sqlLite);
+                    openFragment(ListFormsSavedFragment.newInstance(formsfill, company,user,new SQLLiteDBHelper(this),true));
+                    return true;
+                case R.id.navigation_formssubmitted:
+                    ArrayList<FormsFill> formsfillSubmitted = readAllFormsFillSubmitted(sqlLite);
+                    openFragment(ListFormsSavedFragment.newInstance(formsfillSubmitted, company,user,new SQLLiteDBHelper(this), false));
                     return true;
             }
             return false;
         }
+
+    private ArrayList<FormsFill> readAllFormsFill(SQLLiteDBHelper sqlLite) {
+        return new CrudFormsFill(sqlLite).readAllNew();
+    }
+
+    private ArrayList<FormsFill> readAllFormsFillSubmitted(SQLLiteDBHelper sqlLite) {
+        return new CrudFormsFill(sqlLite).readAllSubmitted();
+    }
 
     private ArrayList <Forms> readAllFilesFileExplorer() {
         File appFilesDirectory = getFilesDir();
@@ -111,6 +145,11 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
             if(file.isFile())
                 existsFiles.add(new Forms(file.getName(), company, null, null, 0, null));
         }
+        return existsFiles;
+    }
+
+    private ArrayList <Forms> readAllFilesSQLLite(SQLLiteDBHelper sqlLite) {
+        ArrayList <Forms> existsFiles = new CrudForms(sqlLite).readAll();
         return existsFiles;
     }
 
@@ -173,6 +212,214 @@ public class MenuActivity extends AppCompatActivity implements BottomNavigationV
         user = getIntent().getStringExtra("USERNAME");
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(this);
+        if( getIntent().getExtras().getInt("menu") != 0 ){
+            onNavigationItemSelected(new MenuItem() {
+                @Override
+                public int getItemId() {
+                    return R.id.navigation_formssaved;
+                }
+
+                @Override
+                public int getGroupId() {
+                    return 0;
+                }
+
+                @Override
+                public int getOrder() {
+                    return 0;
+                }
+
+                @Override
+                public MenuItem setTitle(CharSequence title) {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setTitle(int title) {
+                    return null;
+                }
+
+                @Override
+                public CharSequence getTitle() {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setTitleCondensed(CharSequence title) {
+                    return null;
+                }
+
+                @Override
+                public CharSequence getTitleCondensed() {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setIcon(Drawable icon) {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setIcon(int iconRes) {
+                    return null;
+                }
+
+                @Override
+                public Drawable getIcon() {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setIntent(Intent intent) {
+                    return null;
+                }
+
+                @Override
+                public Intent getIntent() {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setShortcut(char numericChar, char alphaChar) {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setNumericShortcut(char numericChar) {
+                    return null;
+                }
+
+                @Override
+                public char getNumericShortcut() {
+                    return 0;
+                }
+
+                @Override
+                public MenuItem setAlphabeticShortcut(char alphaChar) {
+                    return null;
+                }
+
+                @Override
+                public char getAlphabeticShortcut() {
+                    return 0;
+                }
+
+                @Override
+                public MenuItem setCheckable(boolean checkable) {
+                    return null;
+                }
+
+                @Override
+                public boolean isCheckable() {
+                    return false;
+                }
+
+                @Override
+                public MenuItem setChecked(boolean checked) {
+                    return null;
+                }
+
+                @Override
+                public boolean isChecked() {
+                    return false;
+                }
+
+                @Override
+                public MenuItem setVisible(boolean visible) {
+                    return null;
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return false;
+                }
+
+                @Override
+                public MenuItem setEnabled(boolean enabled) {
+                    return null;
+                }
+
+                @Override
+                public boolean isEnabled() {
+                    return false;
+                }
+
+                @Override
+                public boolean hasSubMenu() {
+                    return false;
+                }
+
+                @Override
+                public SubMenu getSubMenu() {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setOnMenuItemClickListener(OnMenuItemClickListener menuItemClickListener) {
+                    return null;
+                }
+
+                @Override
+                public ContextMenu.ContextMenuInfo getMenuInfo() {
+                    return null;
+                }
+
+                @Override
+                public void setShowAsAction(int actionEnum) {
+
+                }
+
+                @Override
+                public MenuItem setShowAsActionFlags(int actionEnum) {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setActionView(View view) {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setActionView(int resId) {
+                    return null;
+                }
+
+                @Override
+                public View getActionView() {
+                    return null;
+                }
+
+                @Override
+                public MenuItem setActionProvider(ActionProvider actionProvider) {
+                    return null;
+                }
+
+                @Override
+                public ActionProvider getActionProvider() {
+                    return null;
+                }
+
+                @Override
+                public boolean expandActionView() {
+                    return false;
+                }
+
+                @Override
+                public boolean collapseActionView() {
+                    return false;
+                }
+
+                @Override
+                public boolean isActionViewExpanded() {
+                    return false;
+                }
+
+                @Override
+                public MenuItem setOnActionExpandListener(OnActionExpandListener listener) {
+                    return null;
+                }
+            });
+        }
         //initComponents();
 
     }

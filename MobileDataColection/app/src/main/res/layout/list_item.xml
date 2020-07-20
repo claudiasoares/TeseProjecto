@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:id="@+id/llall">
+
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="49dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/ic_baseline_delete_24"
+        android:theme="@style/Theme.MobileDataCollect.Activity.FormEntryActivity.Light"
+        ></Button>
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView_filename"
+            android:layout_width="134dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="127dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView_state"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView_createdon"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:orientation="vertical"
+          >
+          <Button
+              android:id="@+id/button_edit"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:textColor="@color/black"
+              android:text="Edit"
+              android:background="@color/common_google_signin_btn_text_light_default"
+              ></Button>
+      </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+</RelativeLayout>

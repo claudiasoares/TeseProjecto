@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -18,6 +19,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import androidx.annotation.NonNull;
 
 import com.example.mobiledatacolection.utils.UtilsFirebase;
 import com.google.firebase.database.DataSnapshot;
@@ -36,11 +39,16 @@ public class DateWidget
     private final TextView textView;
     private final Button button;
     private final Context context;
+    private final DatabaseReference databaseReference;
+    private final long delay = 1000; // 1 seconds after user stops typing
+    private long last_text_edit = 0;
+    private final Handler handler = new Handler();
 
-    public DateWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version) {
+    public DateWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version,DatabaseReference databaseReference) {
         this.screen = screen;
         String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
+        this.databaseReference = databaseReference;
 
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -80,44 +88,68 @@ public class DateWidget
         });
         textView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void beforeTextChanged (CharSequence s,int start, int count,
+                                           int after){
+            }
+            @Override
+            public void onTextChanged ( final CharSequence s, int start, int before,
+                                        int count){
+                //You need to remove this to run only once
+                handler.removeCallbacks(input_finish_checker);
+
+            }
+            @Override
+            public void afterTextChanged ( final Editable s){
+                //avoid triggering event when text is empty
+                if (s.length() > 0) {
+                    last_text_edit = System.currentTimeMillis();
+                    handler.postDelayed(input_finish_checker, delay);
+                } else {
+
+                }
+            }
+        });
+        databaseReference.child(name).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                textView.setText(name + ": " + (dataSnapshot.getValue() == null ? "" : dataSnapshot.getValue().toString()));
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Since I can connect from multiple devices, we store each connection instance separately
-                // any time that connectionsRef's value is null (i.e. has no children) I am offline
-                FirebaseDatabase database = UtilsFirebase.getDatabase();
-                final DatabaseReference myConnectionsRef = database.getReference("data");
-                final DatabaseReference connectedRef = database.getReference(".info/connected");
-                connectedRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        boolean connected = snapshot.getValue(Boolean.class);
-                        if (connected) {
-                            DatabaseReference con = myConnectionsRef.push();
-                            con.onDisconnect().setValue(charSequence.toString());
-                        }
-                    }
+            public void onCancelled(DatabaseError databaseError) {
 
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        Log.w("DateWidget", "Listener was cancelled at .info/connected");
-                    }
-                });
             }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-
         });
         linearLayout.addView(textView);
         linearLayout.addView(button);
         this.screen.addView(linearLayout);
 
     }
+    private Runnable input_finish_checker = new Runnable() {
+        public void run() {
+            if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
+                final DatabaseReference connectedRef = databaseReference.getDatabase().getReference(".info/connected");
+                connectedRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = snapshot.getValue(Boolean.class);
+                        if (connected) {
+                            databaseReference.child(
+                                    textView
+                                            .getText() == null ? "" : textView
+                                            .getText().toString().split(": ")[0])
+                                    .onDisconnect()
+                                    .setValue(textView.getText().toString().split(": ").length >= 2 ? textView.getText().toString().split(": ")[1]: "");
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+            }
+        }
+    };
     void showDate(int day,  int month, int year, String name){
         DatePickerDialog mDatePicker;
 

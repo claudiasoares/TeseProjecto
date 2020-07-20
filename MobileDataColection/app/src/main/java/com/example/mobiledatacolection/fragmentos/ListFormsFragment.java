@@ -5,7 +5,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
@@ -31,10 +34,14 @@ import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.activities.FormActivity;
 import com.example.mobiledatacolection.activities.MenuActivity;
 import com.example.mobiledatacolection.adapters.WidgetFragmentCollectionAdapter;
+import com.example.mobiledatacolection.dto.Form;
 import com.example.mobiledatacolection.http.HttpGetRequest;
 import com.example.mobiledatacolection.model.Forms;
+import com.example.mobiledatacolection.model.FormsFill;
 import com.example.mobiledatacolection.model.User;
 import com.example.mobiledatacolection.sqlLite.SQLLiteDBHelper;
+import com.example.mobiledatacolection.sqlLite.crudOperations.CrudForms;
+import com.example.mobiledatacolection.sqlLite.crudOperations.CrudFormsFill;
 import com.example.mobiledatacolection.utils.FileUtils;
 import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.firebase.database.DataSnapshot;
@@ -42,7 +49,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firestore.v1beta1.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,8 +59,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import static android.content.Context.MODE_PRIVATE;
@@ -72,6 +80,7 @@ public class ListFormsFragment extends Fragment {
     private static final String DEBUG_TAG = "List Forms";
     private static final String DB = "forms";
     private static String user;
+    private static SQLLiteDBHelper sqlhelper;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -100,11 +109,12 @@ public class ListFormsFragment extends Fragment {
      */
     // TODO: Rename and change types and number of parameters
     private static String company;
-    public static ListFormsFragment newInstance(ArrayList<Forms> f, String c, String u) {
+    public static ListFormsFragment newInstance(ArrayList<Forms> f, String c, String u,SQLLiteDBHelper sql) {
         ListFormsFragment fragment = new ListFormsFragment();
         files=f;
         company = c;
         user = u;
+        sqlhelper = sql;
         return fragment;
     }
     @Override
@@ -142,6 +152,20 @@ public class ListFormsFragment extends Fragment {
                intent.putExtra("name_of_file", fileName);
                intent.putExtra("COMPANY", company);
                intent.putExtra("USERNAME", user);
+
+                Forms form = null;
+                try {
+                    form = (Forms) new CrudForms(sqlhelper).read(fileName);
+                    ArrayList<FormsFill> list = new ArrayList();
+                    String created = Calendar.getInstance().getTime().toString();
+                    list.add(new FormsFill(fileName, company, form.getCategory(), form.getVersion(), created, SQLLiteDBHelper.STATE_FORM_NEW, user));
+                    new CrudFormsFill(sqlhelper).write(list);
+                    intent.putExtra("VERSION", form.getVersion());
+                    intent.putExtra("CREATEDON", created);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                startActivity(intent);
             }
         });
@@ -163,7 +187,7 @@ public class ListFormsFragment extends Fragment {
             getFormsFromServer(company);
             showFormsName();
         }else{
-
+            getForms();
             Toast.makeText(getContext(),"There is not connectivity!",Toast.LENGTH_SHORT);
         }
 
@@ -195,20 +219,8 @@ public class ListFormsFragment extends Fragment {
         }
     }
 
-    private void saveFormsToDBSQLLite(List<Forms> listForms) {
-
-        SQLiteDatabase database = new SQLLiteDBHelper(getContext()).getWritableDatabase();
-
-        for (int i =0; i < listForms.size(); ++i){
-            ContentValues values = new ContentValues();
-            values.put(SQLLiteDBHelper.FORMS_COLUMN_FILENAME, listForms.get(i).getFilename());
-            values.put(SQLLiteDBHelper.FORMS_COLUMN_COMPANY, listForms.get(i).getCompany());
-            values.put(SQLLiteDBHelper.FORMS_COLUMN_CATEGORY, listForms.get(i).getCategory());
-            values.put(SQLLiteDBHelper.FORMS_COLUMN_VERSION, listForms.get(i).getVersion());
-            values.put(SQLLiteDBHelper.FORMS_COLUMN_FILE, listForms.get(i).getFiles());
-            long newRowId = database.insert(SQLLiteDBHelper.FORMS_TABLE_NAME, null, values);
-        }
-
+    private void saveFormsToDBSQLLite(List<Forms> listForms) throws Exception {
+        new CrudForms(sqlhelper).write(listForms);
     }
 
     private void saveFormsToDB(List<Forms> listForms) {
@@ -222,14 +234,14 @@ public class ListFormsFragment extends Fragment {
         }
     }
 
-    public Forms getForm (String filename, int version){
-        SQLiteDatabase database = new SQLLiteDBHelper(getContext()).getWritableDatabase();
-        String[] columns = new String[]{FORMS_COLUMN_ID, FORMS_COLUMN_CATEGORY, FORMS_COLUMN_COMPANY, FORMS_COLUMN_VERSION, FORMS_COLUMN_FILE};
-        Cursor cursor = database.query(FORMS_TABLE_NAME, allColumns, DB.ID + " = " +
-                idContacto, null,null, null, null);
-        cursor.moveToFirst();
-        return cursorToContacto(cursor);
+    public Forms getForm (String filename, int version) throws Exception {
+        return (Forms) new CrudForms(sqlhelper).read(filename,version);
     }
+
+    public List<Forms> getForms (){
+        return new CrudForms(sqlhelper).readAll();
+    }
+
 
   /*  public void readDB(){
         // Write a message to the database

@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.mobiledatacolection.widget.utils.WidgetUtils;
+import com.google.firebase.database.DatabaseReference;
 
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -21,8 +22,11 @@ public class BarcodeWidget {
     // private final Button barcodeButton;
     // private final TextView stringAnswer;
     private final LinearLayout screen;
-    public BarcodeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt formEntryPrompt, int version){
+    private final DatabaseReference databaseReference;
+
+    public BarcodeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt formEntryPrompt, int version, DatabaseReference databaseReference){
         this.screen = screen;
+        this.databaseReference = databaseReference;
         screen.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams layoutForInner = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         layoutForInner.setMargins(10,10,10,10);
@@ -62,4 +66,6 @@ public class BarcodeWidget {
         answerLayout.addView(stringAnswer);
         addAnswerView(answerLayout, WidgetUtils.getStandardMargin(context));*/
     }
+
+
 }
