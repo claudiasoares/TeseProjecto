@@ -26,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
     private Location currLocation;
@@ -103,15 +103,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 break;
         }
-    }
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-        Toast.makeText(this,"Position onMapClick" + latLng.toString(), Toast.LENGTH_LONG);
-    }
-
-    @Override
-    public void onMapLongClick(LatLng latLng) {
-        Toast.makeText(this,"Position onMapLongClick" + latLng.toString(), Toast.LENGTH_LONG);
     }
 }

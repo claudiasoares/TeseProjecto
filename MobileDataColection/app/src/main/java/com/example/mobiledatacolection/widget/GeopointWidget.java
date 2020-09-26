@@ -102,17 +102,18 @@ public class GeopointWidget {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-                // LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE); // or (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE); // or (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 // View viewMyLayout = inflater.inflate(R.layout.activity_maps, null);
-                LayoutInflater inflater = LayoutInflater.from(MapsActivity.this).inflate(R.layout.activity_maps,null);
+                // LayoutInflater inflater = LayoutInflater.from(MapsActivity.this).inflate(R.layout.activity_maps,null);
                 final View customLayout = inflater.inflate(R.layout.activity_maps, null);
 
                 builder.setView(customLayout);
 
 
+
                // builder.setView(R.layout.activity_maps);
 
-                builder.setTitle("Location");
+                builder.setTitle("Here");
 
                 builder.show();
             }
