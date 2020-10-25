@@ -49,6 +49,7 @@ import java.util.List;
 
 public class FormActivity extends AppCompatActivity {
 
+    public static final String LOCATION_RESULT = ;
     private HashMap<Integer, HashMap<Integer, Class>> hash;
     private FormDef formDef;
     private LinearLayout ll;

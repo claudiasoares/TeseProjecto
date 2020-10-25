@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * the FormEntryModel's state.
  */
 public class FormEntryController {
+    public static final String LOCATION_RESULT = ;
     private static final Logger logger = LoggerFactory.getLogger(FormEntryController.class);
 
     public static final int ANSWER_OK = 0;

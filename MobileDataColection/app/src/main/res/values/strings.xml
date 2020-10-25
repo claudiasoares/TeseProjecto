@@ -76,4 +76,19 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="googleMapsSdkAvailable">GoogleMapsSdkAvailable is not available</string>
     <string name="buttonTextSubmmit">Submmit</string>
+    <string name="title_activity_geo_data">ActivityGeoData</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+    <string name="title_activity_collect_abstract">CollectAbstractActivity</string>
+    <string name="provider_disabled_error">Desculpe, provedor de localização desabilitado!</string>
+    <string name="cancel_location">Cancelar</string>
+    <string name="save_point">Erro ao guardar ponto de recuperação: %s</string>
+    <string name="location_metadata">Satélites disponíveis: %1$d/24\n\nTempo que já passou: %2$s</string>
+    <string name="location_provider">Provedor de localização: %s</string>
+    <string name="please_wait_long">Por favor, aguarde. Isto levará alguns minutos.</string>
+    <string name="getting_location">Carregando Localização</string>
+    <string name="location_accuracy">Precisão: %1$s m</string>
 </resources>

@@ -1,0 +1,14 @@
+package com.example.mobiledatacolection.widget.interfaces;
+
+import android.content.Context;
+
+import org.javarosa.form.api.FormEntryPrompt;
+
+public interface IGeoDataRequester {
+
+    void requestGeoPoint(Context context, FormEntryPrompt prompt, String answerText, WaitingForDataRegistry waitingForDataRegistry);
+
+    void requestGeoShape(Context context, FormEntryPrompt prompt, String answerText, WaitingForDataRegistry waitingForDataRegistry);
+
+    void requestGeoTrace(Context context, FormEntryPrompt prompt, String answerText, WaitingForDataRegistry waitingForDataRegistry);
+}

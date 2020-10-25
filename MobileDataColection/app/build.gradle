@@ -45,10 +45,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:17.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'androidx.wear:wear:1.0.0'
     compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
     compile group: 'com.jakewharton.timber', name: 'timber', version: '2.2.2'
     compile group: 'javax.inject', name: 'javax.inject', version: '1'
     compile group: 'com.google.dagger', name: 'dagger', version: '2.10'
+    compileOnly 'com.google.android.wearable:wearable:2.7.0'
 
 
 }
