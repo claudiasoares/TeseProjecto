@@ -24,7 +24,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
-import org.apache.commons.io.IOUtils;
+import com.google.android.gms.common.util.IOUtils;
+
+import org.apache.commons.io.*;
 import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -467,7 +469,7 @@ public class FileUtils {
             deleteAndReport(tempMediaFolder);
         } else {
             for (File mediaFile : mediaFiles) {
-                org.apache.commons.io.FileUtils.moveFileToDirectory(mediaFile, formMediaPath, true);
+                org.apache.commons.io.FileUtils.copyFile(mediaFile, mediaFile);
             }
             deleteAndReport(tempMediaFolder);
         }

@@ -367,7 +367,7 @@ public class FormLoaderTask extends AsyncTask<String, String, FormLoaderTask.FEC
     public static void importData(File instanceFile,FormEntryController fec) throws IOException, RuntimeException {
         // convert files into a byte array
 
-        byte[] fileBytes = org.apache.commons.io.FileUtils.readFileToByteArray(instanceFile);
+        byte[] fileBytes = org.apache.commons.io.FileUtils.fileRead(instanceFile.getName()).getBytes();
 
         // get the root of the saved and template instances
         TreeElement savedRoot = XFormParser.restoreDataModel(fileBytes, null).getRoot();

@@ -36,7 +36,7 @@ public class GoogleMapLocationPicker extends DialogFragment implements OnMapRead
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         layout = inflater.inflate(R.layout.activity_maps, null);
-        mapView = (MapView) layout.findViewById(R.id.map);
+
         AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
         builder.setView(layout);
         return builder.create();

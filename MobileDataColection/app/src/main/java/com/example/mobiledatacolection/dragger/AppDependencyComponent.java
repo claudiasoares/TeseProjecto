@@ -4,9 +4,13 @@ import android.app.Application;
 import android.telephony.SmsManager;
 
 import com.example.mobiledatacolection.MobileDataCollect;
+import com.example.mobiledatacolection.activities.GeoPointMapActivity;
 import com.example.mobiledatacolection.preferences.PropertyManager;
 import com.example.mobiledatacolection.views.MobileDataCollectView;
 import com.example.mobiledatacolection.widget.QuestionWidget;
+import com.example.mobiledatacolection.widget.geo.MapboxMapFragment;
+import com.example.mobiledatacolection.widget.geo.OsmDroidMapFragment;
+import com.example.mobiledatacolection.widget.utils.GoogleMapFragment;
 
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -41,6 +45,15 @@ import dagger.Component;
 })
 public interface AppDependencyComponent {
 
+
+    void inject(MapboxMapFragment mapboxMapFragment);
+
+    void inject(GoogleMapFragment googleMapFragment);
+
+    void inject(com.example.mobiledatacolection.widget.geo.GoogleMapFragment googleMapFragment);
+
+    void inject(GeoPointMapActivity geoPointMapActivity);
+
     @Component.Builder
     interface Builder {
 
@@ -55,7 +68,7 @@ public interface AppDependencyComponent {
     void inject(MobileDataCollect collect);
     void inject(PropertyManager propertyManager);
     void inject(MobileDataCollectView mobileView);
-
+    void inject(OsmDroidMapFragment osmDroidMapFragment);
 
 
 

@@ -1293,7 +1293,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
             // xforms-ready is marked as deprecated as of JavaRosa 2.14.0 but is still dispatched for compatibility with
             // old form definitions
-            actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
+            actionController.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, this);
         }
 
         Collection<QuickTriggerable> qts = initializeTriggerables(TreeReference.rootRef());

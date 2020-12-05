@@ -5,6 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.example.mobiledatacolection.utils.AESUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -44,15 +46,17 @@ public class User {
                     String password = users.getJSONObject(i).getString("password");
                     String company = users.getJSONObject(i).getString("company");
                     //the value of progress is a placeholder here....
-                    User user = new User(username, password, company);
+                    User user = new User(username, AESUtils.encrypt(password), company);
                     userList.add(user);
-                    Log.v("bookList", "Username " + username + "password " + password + "company " + company);
+                    Log.v("bookList", "Username " + username + "password " + AESUtils.encrypt(password) + "company " + company);
                 }
 
             }
 
         } catch(JSONException e) {
             Log.e("CatalogClient", "unexpected JSON exception", e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return userList;
     }

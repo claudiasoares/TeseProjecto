@@ -19,7 +19,7 @@ import android.os.Parcelable;
 
 import java.util.Locale;
 
-public class MapPoint implements Parcelable {
+public class MapPoint extends com.example.mobiledatacolection.widget.geo.MapPoint implements Parcelable {
     public final double lat;
     public final double lon;
     public final double alt;

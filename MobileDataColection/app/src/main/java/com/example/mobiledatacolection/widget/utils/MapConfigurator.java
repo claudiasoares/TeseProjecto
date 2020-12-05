@@ -4,15 +4,13 @@ package com.example.mobiledatacolection.widget.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
 
 import androidx.annotation.Nullable;
 
-import com.example.mobiledatacolection.fragmentos.widget.MapFragment;
+import com.example.mobiledatacolection.widget.geo.MapFragment;
 
 /**
  * For each MapFragment implementation class, there is one instance of this
@@ -40,12 +38,13 @@ public interface MapConfigurator {
      * Creates an unconfigured map fragment (of the type configurable by this
      * MapConfigurator).  This method may return null to indicate that there is
      * no suitable MapFragment implementation available.
+     * @return
      */
     @Nullable
     MapFragment createMapFragment(Context context);
 
     /** Constructs any preference widgets that are specific to this map implementation. */
-    List<Preference> createPrefs(Context context);
+
 
     /** Gets the set of keys for preferences that should be watched for changes. */
     Collection<String> getPrefKeys();

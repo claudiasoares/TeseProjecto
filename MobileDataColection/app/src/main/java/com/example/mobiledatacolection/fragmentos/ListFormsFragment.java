@@ -174,11 +174,11 @@ public class ListFormsFragment extends Fragment {
     }
 
     private void showFormsName(){
-        final List<String> fi = new ArrayList<String>();
+        List<String> fi = new ArrayList<String>();
         for (Forms f : files) {
             fi.add(f.getFilename());
         }
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this.getActivity(), R.layout.text_list_form, fi);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this.getActivity(), R.layout.text_list_form, fi);
         lv.setAdapter(arrayAdapter);
     }
 

@@ -5,6 +5,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.os.Bundle;
@@ -49,7 +50,6 @@ import java.util.List;
 
 public class FormActivity extends AppCompatActivity {
 
-    public static final String LOCATION_RESULT = ;
     private HashMap<Integer, HashMap<Integer, Class>> hash;
     private FormDef formDef;
     private LinearLayout ll;
@@ -63,6 +63,7 @@ public class FormActivity extends AppCompatActivity {
     private String createdon;
     private DatabaseReference databaseReference;
     private String fileNameWithoutExtension;
+    private long tempoInicial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class FormActivity extends AppCompatActivity {
         } else {
             fileName= (String) savedInstanceState.getSerializable("name_of_file");
         }
+        tempoInicial = System.currentTimeMillis();
 
         fileNameWithoutExtension = fileName.split("\\.")[0];
         if(createdon != null){
@@ -139,7 +141,8 @@ public class FormActivity extends AppCompatActivity {
                 }
             });
             ll.addView(buttonSubmit);
-            scroll.addView(ll);;
+            scroll.addView(ll);
+            System.out.println("o form renderizou em " + (System.currentTimeMillis() - tempoInicial) + " ms");
         } catch (Exception e) {
 
             e.printStackTrace();
@@ -178,10 +181,29 @@ public class FormActivity extends AppCompatActivity {
         FormEntryController formController;
         for(IFormElement child : childrens){
             index = model.incrementIndex(index,true);
-
-
             recursividade(child,formEntryController, index, databaseReference);
         }
         return null;
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        System.out.println("restart");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("start");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences preferencesServer = getSharedPreferences("com.example.mobiledatacolection_preferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferencesServer.edit();
+        editor.putLong("Latitude", 0);
+        editor.putLong("Longitude", 0);
     }
 }

@@ -30,6 +30,7 @@ import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.http.HttpGetRequest;
 import com.example.mobiledatacolection.model.User;
 import com.example.mobiledatacolection.sqlLite.SQLLiteDBHelper;
+import com.example.mobiledatacolection.utils.AESUtils;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -146,14 +147,14 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray users = obj.getJSONObject("obj").getJSONArray("users");
                 List<User> listUsers = User.parseUserData(users);
                 saveToDB(listUsers);
-                existsUser = listUsers.contains(new User(username, password, company));
+                existsUser = listUsers.contains(new User(username, AESUtils.encrypt(password), company));
 
             }else{
                 Toast.makeText(this, "Connection Failed on Server!",Toast.LENGTH_SHORT).show();
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return existsUser;
     }
@@ -190,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
             values.put(SQLLiteDBHelper.USER_COLUMN_USERNAME, user.get(i).getUsername());
             values.put(SQLLiteDBHelper.USER_COLUMN_COMPANY, user.get(i).getCompany());
             values.put(SQLLiteDBHelper.USER_COLUMN_PASSWORD, user.get(i).getPassword());
+
             long newRowId = database.insert(SQLLiteDBHelper.USER_TABLE_NAME, null, values);
 
             Toast.makeText(this, "The new Row Id is " + newRowId, Toast.LENGTH_LONG).show();
@@ -201,7 +203,12 @@ public class MainActivity extends AppCompatActivity {
         String username =  emailText.getText().toString();
         String company = companyText.getText().toString();
         String password = passwordText.getText().toString();
-
+        String passwordEncript = null;
+        try {
+            passwordEncript = AESUtils.encrypt(password);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         SQLiteDatabase database = new SQLLiteDBHelper(this).getReadableDatabase();
 
         String[] projection = {
@@ -216,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                         SQLLiteDBHelper.USER_COLUMN_COMPANY + " like ? and " +
                         SQLLiteDBHelper.USER_COLUMN_PASSWORD + " like ?";
 
-        String[] selectionArgs = {"%" + username + "%", company, "%" + password + "%"};
+        String[] selectionArgs = {"%" + username + "%", company, "%" + passwordEncript + "%"};
 
         Cursor cursor = database.query(
                 SQLLiteDBHelper.USER_TABLE_NAME,   // The table to query

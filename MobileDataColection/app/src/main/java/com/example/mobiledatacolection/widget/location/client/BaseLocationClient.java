@@ -1,27 +1,27 @@
-package com.example.mobiledatacolection.widget.utils;
+package com.example.mobiledatacolection.widget.location.client;
 
 import android.location.LocationManager;
-import android.renderscript.RenderScript;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.gms.location.LocationRequest;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
-import static com.google.android.gms.location.LocationRequest.PRIORITY_LOW_POWER;
-import static com.google.android.gms.location.LocationRequest.PRIORITY_NO_POWER;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-abstract class BaseLocationClient {
+/**
+ * An abstract base LocationClient class that provides some shared functionality for determining
+ * whether or not certain Location providers are available.
+ */
+abstract class BaseLocationClient implements LocationClient {
 
     @NonNull
     private final LocationManager locationManager;
+
+    @Nullable
+    private WeakReference<LocationClientListener> listenerRef;
+
     @NonNull
-    private int priority = PRIORITY_HIGH_ACCURACY;
+    private Priority priority = Priority.PRIORITY_HIGH_ACCURACY;
 
     /**
      * Constructs a new BaseLocationClient with the provided LocationManager.
@@ -101,7 +101,7 @@ abstract class BaseLocationClient {
     }
 
     @NonNull
-    RenderScript.Priority getPriority() {
+    Priority getPriority() {
         return priority;
     }
 

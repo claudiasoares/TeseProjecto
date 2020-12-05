@@ -17,10 +17,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.mobiledatacolection.R;
+import com.example.mobiledatacolection.adapters.LocationClient;
+import com.example.mobiledatacolection.adapters.LocationClientProvider;
+import com.example.mobiledatacolection.utils.GeoUtils;
+import com.example.mobiledatacolection.utils.GoogleFusedLocationClient;
+import com.example.mobiledatacolection.utils.PlayServicesChecker;
 import com.google.android.gms.location.LocationListener;
 
-import org.javarosa.core.util.GeoUtils;
-import org.javarosa.form.api.FormEntryController;
+
+
 
 import java.text.DecimalFormat;
 import java.util.Timer;
@@ -32,9 +37,10 @@ import static com.example.mobiledatacolection.utils.PermissionUtils.areLocationP
 import static com.example.mobiledatacolection.widget.GeopointWidget.ACCURACY_THRESHOLD;
 import static com.example.mobiledatacolection.widget.GeopointWidget.DEFAULT_LOCATION_ACCURACY;
 
-public class GeoPointActivity extends CollectAbstractActivity implements
-        LocationListener, GpsStatus.Listener  {
+public class GeoPointActivity extends CollectAbstractActivity implements LocationListener,
+        LocationClient.LocationClientListener, GpsStatus.Listener {
 
+    // Default values for requesting Location updates.
     private static final long LOCATION_UPDATE_INTERVAL = 100;
     private static final long LOCATION_FASTEST_UPDATE_INTERVAL = 50;
 
@@ -44,7 +50,7 @@ public class GeoPointActivity extends CollectAbstractActivity implements
 
     private ProgressDialog locationDialog;
 
-
+    private LocationClient locationClient;
     private Location location;
 
     private double targetAccuracy;
@@ -62,6 +68,11 @@ public class GeoPointActivity extends CollectAbstractActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (!areLocationPermissionsGranted(this)) {
+            Toast.makeText(getBaseContext(),R.string.not_granted_permission,Toast.LENGTH_SHORT);
+            finish();
+            return;
+        }
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -80,7 +91,15 @@ public class GeoPointActivity extends CollectAbstractActivity implements
             }
         }
 
+        setTitle(getString(R.string.get_location));
 
+        locationClient = LocationClientProvider.getClient(this, new PlayServicesChecker(),
+                () -> new GoogleFusedLocationClient(getApplication()));
+        if (locationClient.canSetUpdateIntervals()) {
+            locationClient.setUpdateIntervals(LOCATION_UPDATE_INTERVAL, LOCATION_FASTEST_UPDATE_INTERVAL);
+        }
+
+        locationClient.setListener(this);
 
         setupLocationDialog();
     }
@@ -88,7 +107,7 @@ public class GeoPointActivity extends CollectAbstractActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-
+        locationClient.start();
     }
 
     @Override
@@ -129,6 +148,8 @@ public class GeoPointActivity extends CollectAbstractActivity implements
             locationManager.removeGpsStatusListener(this);
         }
 
+        locationClient.stop();
+        locationClient.setListener(null);
 
         super.onStop();
     }
@@ -142,7 +163,37 @@ public class GeoPointActivity extends CollectAbstractActivity implements
 
     //region LocationClientListener:
 
+    @SuppressLint("MissingPermission") // Checking Permissions handled in constructor
+    @Override
+    public void onClientStart() {
+        locationClient.requestLocationUpdates(this);
 
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            locationManager.addGpsStatusListener(this);
+        }
+
+        if (locationClient.isLocationAvailable()) {
+            logLastLocation();
+        } else {
+            finishOnError();
+        }
+    }
+
+    @Override
+    public void onClientStartFailure() {
+        finishOnError();
+    }
+
+    @Override
+    public void onClientStop() {
+    }
+
+    //endregion
+
+    /**
+     * Sets up the look and actions for the progress dialog while the GPS is searching.
+     */
     @SuppressWarnings("deprecation")
     private void setupLocationDialog() {
         // dialog displayed while fetching gps location
@@ -176,7 +227,7 @@ public class GeoPointActivity extends CollectAbstractActivity implements
     }
 
     private void logLastLocation() {
-        Location loc = getLastLocation();
+        Location loc = locationClient.getLastLocation();
 
         if (loc != null) {
             Timber.i("lastKnownLocation() lat: %f long: %f acc: %f", loc.getLatitude(), loc.getLongitude(), loc.getAccuracy());
@@ -186,20 +237,11 @@ public class GeoPointActivity extends CollectAbstractActivity implements
         }
     }
 
-    private Location getLastLocation() {
-        String provider = getProvider();
-        if (provider != null) {
-            return getLocationManager().getLastKnownLocation(provider);
-        }
-
-        return null;
-    }
-
     private void returnLocation() {
         if (location != null) {
             Intent i = new Intent();
 
-            i.putExtra(FormActivity.LOCATION_RESULT, getResultStringForLocation(location));
+            i.putExtra("LOCATION_RESULT", getResultStringForLocation(location));
 
             setResult(RESULT_OK, i);
         }
@@ -208,7 +250,7 @@ public class GeoPointActivity extends CollectAbstractActivity implements
     }
 
     private void finishOnError() {
-        Toast.makeText(getBaseContext(), R.string.provider_disabled_error,Toast.LENGTH_SHORT);
+        Toast.makeText(getBaseContext(),R.string.provider_disabled_error,Toast.LENGTH_SHORT);
         Intent onGPSIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 
         startActivity(onGPSIntent);

@@ -51,7 +51,7 @@ import org.javarosa.formmanager.view.IQuestionWidget;
 public class FormEntryPrompt extends FormEntryCaption {
     private static final Logger logger = LoggerFactory.getLogger(FormEntryPrompt.class);
 
-    TreeElement mTreeElement;
+    public TreeElement mTreeElement;
     boolean dynamicChoicesPopulated = false;
 
     /**
@@ -71,7 +71,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         if (!(element instanceof QuestionDef)) {
             throw new IllegalArgumentException("FormEntryPrompt can only be created for QuestionDef elements");
         }
-        this.mTreeElement = form.getMainInstance().resolveReference(index.getReference());
+        this.mTreeElement = form.getInstance().resolveReference(index.getReference());
     }
 
     public int getControlType() {

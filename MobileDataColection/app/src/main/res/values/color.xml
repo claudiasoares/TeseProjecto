@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="locationCrosshairs">#ff0099ff</color>
+    <color name="locationAccuracyCircle">#800099ff</color>
+    <color name="locationAccuracyFill">#200099ff</color>
+
+    <!-- Colors for recorded points and lines drawn on the map. -->
+    <color name="mapPointCircle">#ffff0000</color>
+    <color name="mapPointFill">#ffffffff</color>
+    <color name="mapLine">#ffff0000</color>
+</resources>

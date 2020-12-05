@@ -4,8 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import org.jetbrains.annotations.Nullable;
 
 
 import static com.example.mobiledatacolection.utils.PermissionUtils.areStoragePermissionsGranted;

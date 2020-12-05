@@ -4,22 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.wearable.activity.WearableActivity;
-import android.widget.TextView;
-
-import com.example.mobiledatacolection.widget.interfaces.IGeoDataRequester;
-import com.example.mobiledatacolection.widget.interfaces.WaitingForDataRegistry;
+import com.example.mobiledatacolection.widget.interfaces.*;
+import com.example.mobiledatacolection.widget.utils.GeoWidgetUtils;
 
 import org.javarosa.form.api.FormEntryPrompt;
 
-public class ActivityGeoData implements IGeoDataRequester {
+public class ActivityGeoData  {
 
     private static final String LOCATION = "gp";
     private static final String ACCURACY_THRESHOLD = "accuracyThreshold";
     private static final String READ_ONLY = "readOnly";
     private static final String DRAGGABLE_ONLY = "draggable";
 
-    @Override
     public void requestGeoPoint(Context context, FormEntryPrompt prompt, String answerText, WaitingForDataRegistry waitingForDataRegistry) {
         Bundle bundle = new Bundle();
 
@@ -33,21 +29,20 @@ public class ActivityGeoData implements IGeoDataRequester {
 
         Intent intent = new Intent(context, isMapsAppearance(prompt) ? GeoPointMapActivity.class : GeoPointActivity.class);
         intent.putExtras(bundle);
-        ((Activity) context).startActivityForResult(intent, ApplicationConstants.RequestCodes.LOCATION_CAPTURE);
+        ((Activity) context).startActivityForResult(intent, 5);
     }
 
-    @Override
+    private boolean hasPlacementMapAppearance(FormEntryPrompt prompt) {
+        return false;
+    }
+
+    private boolean isMapsAppearance(FormEntryPrompt prompt) {
+        return false;
+    }
+
+
     public void denied() {
     }
-    }
 
-    @Override
-    public void requestGeoShape(Context context, FormEntryPrompt prompt, String answerText, WaitingForDataRegistry waitingForDataRegistry) {
 
-    }
-
-    @Override
-    public void requestGeoTrace(Context context, FormEntryPrompt prompt, String answerText, WaitingForDataRegistry waitingForDataRegistry) {
-
-    }
 }

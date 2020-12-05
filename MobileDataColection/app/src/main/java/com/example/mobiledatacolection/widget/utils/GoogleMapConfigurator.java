@@ -6,77 +6,43 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-
 import com.example.mobiledatacolection.R;
-import com.example.mobiledatacolection.fragmentos.widget.MapFragment;
+import com.example.mobiledatacolection.fragmentos.widget.MapPoint;
+import com.example.mobiledatacolection.widget.geo.MapFragment;
+import com.example.mobiledatacolection.widget.geo.MapboxMapFragment;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-    class GoogleMapConfigurator implements MapConfigurator {
-        @Override
-        public boolean isAvailable(Context context) {
-            return false;
-        }
 
-        @Override
-        public void showUnavailableMessage(Context context) {
+import static com.example.mobiledatacolection.fragmentos.widget.MapFragment.KEY_REFERENCE_LAYER;
+import static com.google.android.gms.common.GooglePlayServicesUtil.isGooglePlayServicesAvailable;
 
-        }
+public class GoogleMapConfigurator implements MapConfigurator {
 
-        @Nullable
-        @Override
-        public MapFragment createMapFragment(Context context) {
-            return null;
-        }
+      private  String prefKey;
+        private  int sourceLabelId;
+        private  GoogleMapTypeOption[] options;
 
-        @Override
-        public List<Preference> createPrefs(Context context) {
-            return null;
-        }
-
-        @Override
-        public Collection<String> getPrefKeys() {
-            return null;
-        }
-
-        @Override
-        public Bundle buildConfig(SharedPreferences prefs) {
-            return null;
-        }
-
-        @Override
-        public boolean supportsLayer(File file) {
-            return false;
-        }
-
-        @Override
-        public String getDisplayName(File file) {
-            return null;
-        }
-  /*      private final String prefKey;
-        private final int sourceLabelId;
-        private final GoogleMapTypeOption[] options;
-
-        *//** Constructs a configurator with a few Google map type options to choose from. *//*
-        GoogleMapConfigurator(String prefKey, int sourceLabelId, GoogleMapTypeOption... options) {
+        /** Constructs a configurator with a few Google map type options to choose from. */
+        public GoogleMapConfigurator(String prefKey, int sourceLabelId, String keyGoogleMapStyle, int basemap_source_google, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption option, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption typeOption, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption mapTypeOption, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption googleMapTypeOption, GoogleMapTypeOption... options) {
             this.prefKey = prefKey;
             this.sourceLabelId = sourceLabelId;
             this.options = options;
         }
 
-        @Override public boolean isAvailable(Context context) {
-            return isGoogleMapsSdkAvailable(context) && isGooglePlayServicesAvailable(context);
+    public GoogleMapConfigurator(String keyGoogleMapStyle, int basemap_source_google, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption googleMapTypeOption, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption googleMapTypeOption1, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption googleMapTypeOption2, com.example.mobiledatacolection.widget.geo.GoogleMapConfigurator.GoogleMapTypeOption googleMapTypeOption3) {
+
+    }
+
+    @Override public boolean isAvailable(Context context) {
+            return isGoogleMapsSdkAvailable(context) ;
         }
 
         @Override public void showUnavailableMessage(Context context) {
             if (!isGoogleMapsSdkAvailable(context)) {
-                Toast.makeText(context.getString(R.string.googleMapsSdkAvailable) ,Toast.LENGTH_LONG);
+                Toast.makeText(context, context.getString(R.string.googleMapsSdkAvailable) ,Toast.LENGTH_LONG);
             }
         }
 
@@ -90,21 +56,11 @@ import java.util.Set;
 
 
         @Override public MapFragment createMapFragment(Context context) {
-            return new GoogleMapFragment();
+            return new MapboxMapFragment();
         }
 
-        @Override public List<Preference> createPrefs(Context context) {
-            int[] labelIds = new int[options.length];
-            String[] values = new String[options.length];
-            for (int i = 0; i < options.length; i++) {
-                labelIds[i] = options[i].labelId;
-                values[i] = Integer.toString(options[i].mapType);
-            }
-            String prefTitle = context.getString(
-                    R.string.map_style_label, context.getString(sourceLabelId));
-            return Collections.singletonList(PrefUtils.createListPref(
-                    context, prefKey, prefTitle, labelIds, values
-            ));
+        public List<Preference> createPrefs(Context context) {
+            return null;
         }
 
         @Override public Set<String> getPrefKeys() {
@@ -114,21 +70,18 @@ import java.util.Set;
 
         @Override public Bundle buildConfig(SharedPreferences prefs) {
             Bundle config = new Bundle();
-            config.putInt(GoogleMapFragment.KEY_MAP_TYPE,
-                    PrefUtils.getInt(KEY_GOOGLE_MAP_STYLE, GoogleMap.MAP_TYPE_NORMAL));
-            config.putString(GoogleMapFragment.KEY_REFERENCE_LAYER,
+            config.putString("REFERENCE_LAYER",
                     prefs.getString(KEY_REFERENCE_LAYER, null));
             return config;
         }
 
         @Override public boolean supportsLayer(File file) {
             // GoogleMapFragment supports only raster tiles.
-            return MbtilesFile.readLayerType(file) == LayerType.RASTER;
+            return true;
         }
 
         @Override public String getDisplayName(File file) {
-            String name = MbtilesFile.readName(file);
-            return name != null ? name : file.getName();
+            return file.getName();
         }
 
         static class GoogleMapTypeOption {
@@ -139,6 +92,6 @@ import java.util.Set;
                 this.mapType = mapType;
                 this.labelId = labelId;
             }
-        }*/
+        }
     }
 
