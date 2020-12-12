@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.ColorSpace;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -171,11 +172,10 @@ public class FormActivity extends AppCompatActivity {
                 Object instance = constructor[0].newInstance(intArgs);
                 Method method = c.getDeclaredMethod("getElement", noparams);
                 ll = (LinearLayout) method.invoke(instance);
-
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("Form Activity", e.getMessage());
             }
-            System.out.println(form.getLabelInnerText());
+            Log.v("Form Activity", form.getLabelInnerText());
             return null;
         }
         FormEntryController formController;

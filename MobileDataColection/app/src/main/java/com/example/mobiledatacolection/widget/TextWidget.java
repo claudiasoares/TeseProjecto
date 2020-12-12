@@ -33,7 +33,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 
 public class TextWidget{
-
   private final DatabaseReference databaseReference;
   private LinearLayout screen;
   private TextView tv1;
@@ -46,7 +45,6 @@ public class TextWidget{
     this.screen = screen;
     this.databaseReference = databaseReference;
     String name = fep.mTreeElement.getName();
-            //form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
     tv1 = new TextView(context);
     tv1.setTextColor(Color.BLACK);
     tv1.setTypeface(Typeface.DEFAULT_BOLD);
