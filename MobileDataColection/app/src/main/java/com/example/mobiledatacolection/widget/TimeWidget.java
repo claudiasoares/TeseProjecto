@@ -74,7 +74,8 @@ public class TimeWidget {
     public TimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version,DatabaseReference databaseReference) {
         this.screen = screen;
         this.databaseReference = databaseReference;
-        String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
+        String name = fep.mTreeElement.getName();
+                // form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
 
         LinearLayout linearLayout = new LinearLayout(context);

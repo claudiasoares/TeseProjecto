@@ -31,12 +31,9 @@ import java.util.List;
 
 public class MultipleItemsWidget {
 
-    private final LinearLayout screen;
-    private final DatabaseReference databaseReference;
-    private final TextView tv1;
-    long delay = 1000; // 1 seconds after user stops typing
-    long last_text_edit = 0;
-    Handler handler = new Handler();
+    private LinearLayout screen;
+    private DatabaseReference databaseReference;
+    private TextView tv1;
     List<CheckBox> listCb ;
 
     public MultipleItemsWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version, DatabaseReference databaseReference){
@@ -90,30 +87,6 @@ public class MultipleItemsWidget {
         }
 
     }
-
-    private Runnable input_finish_checker = new Runnable() {
-        public void run() {
-            if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
-                final DatabaseReference connectedRef = databaseReference.getDatabase().getReference(".info/connected");
-                connectedRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        boolean connected = snapshot.getValue(Boolean.class);
-                        if (connected) {
-                            for (CheckBox cbs : listCb){
-                                databaseReference.child(cbs.getText().toString()).onDisconnect().setValue(cbs.isChecked());
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                    }
-                });
-            }
-        }
-    };
     public LinearLayout getElement(){
         return screen;
     }

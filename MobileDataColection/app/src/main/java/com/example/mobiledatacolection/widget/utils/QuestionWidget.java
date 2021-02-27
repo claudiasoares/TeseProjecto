@@ -1,4 +1,4 @@
-package com.example.mobiledatacolection.widget;
+package com.example.mobiledatacolection.widget.utils;
 
 import android.content.Context;
 import android.text.Editable;

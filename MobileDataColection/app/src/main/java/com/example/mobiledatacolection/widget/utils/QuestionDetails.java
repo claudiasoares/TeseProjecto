@@ -1,4 +1,4 @@
-package com.example.mobiledatacolection.widget;
+package com.example.mobiledatacolection.widget.utils;
 
 import org.javarosa.form.api.FormEntryPrompt;
 

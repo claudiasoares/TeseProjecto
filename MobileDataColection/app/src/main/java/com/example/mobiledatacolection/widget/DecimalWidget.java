@@ -23,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryPrompt;
 
 public class DecimalWidget {
     private DatabaseReference databaseReference;
@@ -33,10 +34,11 @@ public class DecimalWidget {
     private long last_text_edit = 0;
     private final Handler handler = new Handler();
 
-    public DecimalWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryController fep, int version,DatabaseReference databaseReference) {
+    public DecimalWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version, DatabaseReference databaseReference) {
         this.screen = screen;
         this.databaseReference = databaseReference;
-        String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
+        String name = fep.mTreeElement.getName();
+                // form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         tv1 = new TextView(context);
         tv1.setTextColor(Color.BLACK);
         tv1.setTypeface(Typeface.DEFAULT_BOLD);

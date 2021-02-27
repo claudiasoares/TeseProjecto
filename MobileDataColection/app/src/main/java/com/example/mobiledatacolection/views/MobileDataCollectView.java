@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.example.mobiledatacolection.R;
 import com.example.mobiledatacolection.views.listeners.ChangeValueListener;
-import com.example.mobiledatacolection.widget.QuestionWidget;
+import com.example.mobiledatacolection.widget.utils.QuestionWidget;
 import com.example.mobiledatacolection.widget.interfaces.WidgetValueChangedListener;
 
 import org.javarosa.form.api.FormEntryCaption;

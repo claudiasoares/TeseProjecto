@@ -1,13 +1,12 @@
 package com.example.mobiledatacolection.dragger;
 
 import android.app.Application;
-import android.telephony.SmsManager;
 
 import com.example.mobiledatacolection.MobileDataCollect;
 import com.example.mobiledatacolection.activities.GeoPointMapActivity;
 import com.example.mobiledatacolection.preferences.PropertyManager;
 import com.example.mobiledatacolection.views.MobileDataCollectView;
-import com.example.mobiledatacolection.widget.QuestionWidget;
+import com.example.mobiledatacolection.widget.utils.QuestionWidget;
 import com.example.mobiledatacolection.widget.geo.MapboxMapFragment;
 import com.example.mobiledatacolection.widget.geo.OsmDroidMapFragment;
 import com.example.mobiledatacolection.widget.utils.GoogleMapFragment;

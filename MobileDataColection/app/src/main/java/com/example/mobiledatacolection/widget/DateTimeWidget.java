@@ -1,6 +1,7 @@
 package com.example.mobiledatacolection.widget;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 
@@ -33,6 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +49,8 @@ public class DateTimeWidget  {
     private final long delay = 1000; // 1 seconds after user stops typing
     private long last_text_edit = 0;
     private final Handler handler = new Handler();
+    String name;
+    Calendar mCalendar;
 
     static {
         s_intentFilter = new IntentFilter();
@@ -56,11 +61,13 @@ public class DateTimeWidget  {
 
     private final DatabaseReference databaseReference;
 
-    public DateTimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryController fep, int version,DatabaseReference databaseReference) {
+    public DateTimeWidget(Context context, LinearLayout screen, QuestionDef form, FormEntryPrompt fep, int version, DatabaseReference databaseReference) {
        // super(context,qd);
         this.screen = screen;
+        mCalendar = Calendar.getInstance();
         this.databaseReference = databaseReference;
-        String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
+        name = fep.mTreeElement.getName();
+        // String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText();
         this.context = context;
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -76,7 +83,7 @@ public class DateTimeWidget  {
         databaseReference.child(name).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                textView.setText(name + ": " + dataSnapshot.getValue().toString());
+                textView.setText(name + ": " + dataSnapshot.getValue());
             }
 
             @Override
@@ -103,12 +110,7 @@ public class DateTimeWidget  {
         int month = cldr.get(Calendar.MONTH);
         int year = cldr.get(Calendar.YEAR);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDate(day, month, year, name);
-            }
-        });
+        button.setOnClickListener(buttonList);
 
         linearLayout.addView(textView);
         linearLayout.addView(button);
@@ -168,12 +170,48 @@ public class DateTimeWidget  {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 textView.setText(name + ": " + dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                new TimePickerDialog(context, mTimeDataSet, mCalendar.get(Calendar.HOUR_OF_DAY), mCalendar.get(Calendar.MINUTE), false).show();
             }
         }, year, month, day);
         mDatePicker.setTitle(name);
         mDatePicker.show();
 
     }
+
+    /* Define the onClickListener, and start the DatePickerDialog with users current time */
+    private final View.OnClickListener buttonList = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            new DatePickerDialog(context, mDateDataSet, mCalendar.get(Calendar.YEAR),
+                    mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH)).show();
+        }
+    };
+    /* After user decided on a date, store those in our calendar variable and then start the TimePickerDialog immediately */
+    private final DatePickerDialog.OnDateSetListener mDateDataSet = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            mCalendar.set(Calendar.YEAR, year);
+            mCalendar.set(Calendar.MONTH, monthOfYear);
+            mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            new TimePickerDialog(context, mTimeDataSet, mCalendar.get(Calendar.HOUR_OF_DAY), mCalendar.get(Calendar.MINUTE), false).show();
+        }
+    };
+
+    private final TimePickerDialog.OnTimeSetListener mTimeDataSet = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            mCalendar.set(Calendar.MINUTE, minute);
+            String AM_PM ;
+            if(hourOfDay < 12) {
+                AM_PM = "AM";
+            } else {
+                AM_PM = "PM";
+            }
+            textView.setText(name + ": " + mCalendar.get(Calendar.YEAR) + "/" + (mCalendar.get(Calendar.MONTH) + 1) + "/" + mCalendar.get(Calendar.DAY_OF_MONTH) + " " + mCalendar.get(Calendar.HOUR) + ":" + mCalendar.get(Calendar.MINUTE) + " "+ AM_PM);
+
+        }
+    };
 
     public LinearLayout getElement(){
         return screen;

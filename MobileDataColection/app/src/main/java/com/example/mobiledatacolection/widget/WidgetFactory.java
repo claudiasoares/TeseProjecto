@@ -3,6 +3,7 @@ package com.example.mobiledatacolection.widget;
 import android.content.Context;
 
 import com.example.mobiledatacolection.widget.interfaces.Widget;
+import com.example.mobiledatacolection.widget.utils.QuestionDetails;
 
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -42,8 +43,9 @@ public class WidgetFactory {
 
 
     private  Context context;
-    private  QuestionDetails questionDetails;
+    private QuestionDetails questionDetails;
     private  boolean readOnlyOverride;
+    private HashMap<Integer, Class> contantsGetImageChoose;
 
     public WidgetFactory() {
        // questionDetails = new QuestionDetails(prompt, MobileDataCollect.getCurrentFormIdentifierHash());
@@ -61,6 +63,7 @@ public class WidgetFactory {
         contantsGetDataRank = new HashMap<Integer, Class>();
         contantsGetDataTrigger = new HashMap<Integer, Class>();
         contantsGetDataRange = new HashMap<Integer, Class>();
+        contantsGetImageChoose = new HashMap<Integer, Class>();
         populateDataTypeControlInput();
         populateDataFileCaptureInput();
         populateControlType();
@@ -87,6 +90,7 @@ public class WidgetFactory {
         contantsDataTypeInput.put(DATATYPE_GEOTRACE, GeotraceWidget.class);
         contantsDataTypeInput.put(DATATYPE_BARCODE, BarcodeWidget.class);
         contantsDataTypeInput.put(DATATYPE_TEXT, TextWidget.class);
+
     }
 
     private void populateDataFileCaptureInput() {
@@ -99,6 +103,7 @@ public class WidgetFactory {
     }
     private void populateDataTypeImageChoose() {
         contantsGetDataImageChoose.put(DATATYPE_CHOICE, SelectOneWidget.class);
+        contantsGetDataImageChoose.put(DATATYPE_BINARY, ImageBinaryWidget.class);
 
     }
     private void populateDataTypeOmsCapture() {
@@ -115,9 +120,8 @@ public class WidgetFactory {
     }
     private void populateDataTypeSelectMultiple() {
         contantsGetDataSelectMulti.put(DATATYPE_CHOICE, SelectMultiWidget.class);
+        // contantsGetDataSelectMulti.put(DATATYPE_MULTIPLE_ITEMS, SelectMultiWidget.class);
         contantsGetDataSelectMulti.put(DATATYPE_MULTIPLE_ITEMS, MultipleItemsWidget.class);
-
-
     }
     private void populateDataTypeRank() {
         contantsGetDataRank.put(DATATYPE_CHOICE, SelectOneWidget.class);

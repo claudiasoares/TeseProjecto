@@ -1,13 +1,10 @@
 package com.example.mobiledatacolection.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.ColorSpace;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,13 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mobiledatacolection.R;
-import com.example.mobiledatacolection.fragmentos.ListFormsSavedFragment;
 import com.example.mobiledatacolection.model.FormsFill;
 import com.example.mobiledatacolection.sqlLite.SQLLiteDBHelper;
 import com.example.mobiledatacolection.sqlLite.crudOperations.CrudFormsFill;
 import com.example.mobiledatacolection.utils.FileUtils;
 import com.example.mobiledatacolection.utils.UtilsFirebase;
-import com.example.mobiledatacolection.widget.QuestionDetails;
+import com.example.mobiledatacolection.widget.utils.QuestionDetails;
 import com.example.mobiledatacolection.widget.WidgetFactory;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -34,8 +30,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
@@ -143,14 +137,19 @@ public class FormActivity extends AppCompatActivity {
             });
             ll.addView(buttonSubmit);
             scroll.addView(ll);
-            System.out.println("o form renderizou em " + (System.currentTimeMillis() - tempoInicial) + " ms");
+            Log.v("FormActivity", "o form renderizou em " + (System.currentTimeMillis() - tempoInicial) + " ms");
         } catch (Exception e) {
 
-            e.printStackTrace();
+           e.printStackTrace();
         }
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Uri uri = data.getData();
+    }
 
-    private IFormElement recursividade(IFormElement form, FormEntryController formEntryController, FormIndex index, DatabaseReference databaseReference){
+    private IFormElement recursividade(IFormElement form, FormEntryController fec, FormIndex index, DatabaseReference databaseReference){
         List<IFormElement> childrens = form.getChildren();
 
         if( childrens == null){
@@ -175,13 +174,13 @@ public class FormActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e("Form Activity", e.getMessage());
             }
-            Log.v("Form Activity", form.getLabelInnerText());
+           // Log.v("Form Activity", form.getLabelInnerText());
             return null;
         }
-        FormEntryController formController;
+
         for(IFormElement child : childrens){
             index = model.incrementIndex(index,true);
-            recursividade(child,formEntryController, index, databaseReference);
+            recursividade(child,fec,index, databaseReference);
         }
         return null;
     }
@@ -189,13 +188,12 @@ public class FormActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        System.out.println("restart");
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        System.out.println("start");
     }
 
     @Override

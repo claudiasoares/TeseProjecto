@@ -90,7 +90,8 @@ public class GeopointWidget {
         this.linearlayout = screen;
         this.context = context;
         this.databaseReference = databaseReference;
-        String name = form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText().split("/")[2].split(":")[0];
+        String name = fep.mTreeElement.getName();
+                // form.getLabelInnerText() == null ? form.getTextID().split("/")[2].split(":")[0] : form.getLabelInnerText().split("/")[2].split(":")[0];
         LinearLayout linearLayout1 = new LinearLayout(context);
         linearLayout1.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams params
@@ -246,36 +247,6 @@ public class GeopointWidget {
         linearLayout1.addView(button);
         this.linearlayout.addView(linearLayout1);
 
-       /* FragmentManager fm = ((FormActivity)context).getFragmentManager();
-        map = (MapFragment) fm.findFragmentById(R.id.map);
-        if (map == null) {
-            map = MapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.map, map).commit();
-
-        map.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    googleMap.setMyLocationEnabled(true);
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    markerOptions.title("Location");
-
-                    googleMap.addMarker(markerOptions);
-                    return;
-                }
-
-
-            }
-
-        });  }*/
-
     }
 
     private Runnable input_finish_checker = new Runnable() {
@@ -322,36 +293,4 @@ public class GeopointWidget {
         return this.linearlayout;
     }
 
-  /*  private void determineMapProperties() {
-        // Determine the accuracy threshold to use.
-        String acc = questionDef.getAdditionalAttribute(null, ACCURACY_THRESHOLD);
-        accuracyThreshold = acc != null && !acc.isEmpty() ? Double.parseDouble(acc) : DEFAULT_LOCATION_ACCURACY;
-
-        // Determine whether to use the map and whether the point should be draggable.
-        if (MapProvider.getConfigurator().isAvailable(getContext())) {
-            if (hasAppearance(getFormEntryPrompt(), PLACEMENT_MAP)) {
-                draggable = true;
-                useMap = true;
-            } else if (hasAppearance(getFormEntryPrompt(), MAPS)) {
-                draggable = false;
-                useMap = true;
-            }
-        }
-    }
-
-    public void updateButtonLabelsAndVisibility(boolean dataAvailable) {
-        if (useMap) {
-            if (readOnly) {
-                startGeoButton.setText(R.string.geopoint_view_read_only);
-            } else {
-                startGeoButton.setText(
-                        dataAvailable ? R.string.view_change_location : R.string.get_point);
-            }
-        } else {
-            if (!readOnly) {
-                startGeoButton.setText(
-                        dataAvailable ? R.string.change_location : R.string.get_point);
-            }
-        }
-    }*/
 }

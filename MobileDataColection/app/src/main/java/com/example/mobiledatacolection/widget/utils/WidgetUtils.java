@@ -15,7 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.IdRes;
 
 import com.example.mobiledatacolection.R;
-import com.example.mobiledatacolection.widget.QuestionWidget;
 
 import static android.view.View.GONE;
 
